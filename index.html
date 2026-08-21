@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gerador de Chaveiro SVG</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+    <main class="container">
+
+        <h1>Gerador de Chaveiro SVG</h1>
+
+        <p>
+            Digite o texto, escolha a fonte e visualize
+            o resultado em formato vetorial.
+        </p>
+
+
+        <div class="painel">
+
+            <!-- ============================= -->
+            <!-- CONTROLES -->
+            <!-- ============================= -->
+
+            <section class="controles">
+
+
+                <!-- TEXTO -->
+
+                <label for="texto">
+                    Texto
+                </label>
+
+                <input
+                    type="text"
+                    id="texto"
+                    value="Marangoni"
+                    autocomplete="off"
+                >
+
+
+                <!-- FONTE -->
+
+                <label for="fonte">
+                    Fonte
+                </label>
+
+                <select id="fonte">
+
+                    <option value="fonts/Atma-Regular.ttf">
+                        Atma
+                    </option>
+
+                    <option
+                        value="fonts/Chewy-Regular.ttf"
+                        selected
+                    >
+                        Chewy
+                    </option>
+
+                    <option value="fonts/Courgette-Regular.ttf">
+                        Courgette
+                    </option>
+
+                    <option value="fonts/Fredoka[wdth,wght].ttf">
+                        Fredoka
+                    </option>
+
+                    <option value="fonts/Merienda[wght].ttf">
+                        Merienda
+                    </option>
+
+                    <option value="fonts/Overlock-Regular.ttf">
+                        Overlock
+                    </option>
+
+                    <option value="fonts/LilitaOne-Regular.ttf">
+                        Lilita One
+                    </option>
+
+                    <option value="fonts/BubblegumSans-Regular.ttf">
+                        Bubblegum Sans
+                    </option>
+
+                    <option value="fonts/ConcertOne-Regular.ttf">
+                        Concert One
+                    </option>
+
+                    <option value="fonts/Coiny-Regular.ttf">
+                        Coiny
+                    </option>
+
+                    <option value="fonts/TitanOne-Regular.ttf">
+                        Titan One
+                    </option>
+
+                    <option value="fonts/Sniglet-Regular.ttf">
+                        Sniglet
+                    </option>
+
+                    <option value="fonts/Chicle-Regular.ttf">
+                        Chicle
+                    </option>
+
+                    <option value="fonts/Modak-Regular.ttf">
+                        Modak
+                    </option>
+
+                    <option value="fonts/Baloo2[wght].ttf">
+                        Baloo 2
+                    </option>
+
+                    <option value="fonts/LuckiestGuy-Regular.ttf">
+                        Luckiest Guy
+                    </option>
+
+                    <option value="fonts/Boogaloo-Regular.ttf">
+                        Boogaloo
+                    </option>
+
+                    <option value="fonts/CarterOne.ttf">
+                        Carter One
+                    </option>
+
+                    <option value="fonts/CherryBombOne-Regular.ttf">
+                        Cherry Bomb One
+                    </option>
+
+                    <option value="fonts/Ribeye-Regular.ttf">
+                        Ribeye
+                    </option>
+
+                </select>
+
+
+                <!-- TAMANHO -->
+
+                <label for="tamanho">
+                    Tamanho da fonte
+                </label>
+
+                <input
+                    type="number"
+                    id="tamanho"
+                    value="72"
+                    min="10"
+                    max="200"
+                    step="0.1"
+                >
+
+
+                <!-- BORDA -->
+
+                <label for="borda">
+                    Espessura da borda
+                </label>
+
+                <input
+                    type="number"
+                    id="borda"
+                    value="6"
+                    min="1"
+                    max="30"
+                    step="0.5"
+                >
+
+                <label for="furo">
+                    Diâmetro do furo
+                </label>
+
+                <input
+                    type="number"
+                    id="furo"
+                    value="5"
+                    min="2"
+                    max="20"
+                    step="0.5"
+                >
+
+
+                <label for="espessuraArgola">
+                    Espessura da argola
+                </label>
+
+                <input
+                    type="number"
+                    id="espessuraArgola"
+                    value="2.5"
+                    min="1"
+                    max="10"
+                    step="0.5"
+                >    
+
+                <label for="posicaoArgola">
+                    Posição da argola:
+                    <span id="valorPosicaoArgola">0%</span>
+                </label>
+
+                <input
+                    type="range"
+                    id="posicaoArgola"
+                    min="0"
+                    max="100"
+                    value="0"
+                    step="1"
+                >
+
+<small>
+    Deslize para mover a argola ao redor do contorno.
+</small>
+
+        <label class="checkbox-container">
+            <input
+                type="checkbox"
+                id="incluirPreenchimento"
+                checked
+            >
+
+            Incluir preenchimento das letras
+        </label>
+
+        <small>
+            Preto = preenchimento. Azul = contorno das letras.
+        </small>
+
+
+                <!-- BOTÕES -->
+
+                <button id="gerar">
+                    Gerar SVG
+                </button>
+
+                <button
+                    id="baixar"
+                    disabled
+                >
+                    Baixar SVG
+                </button>
+
+                <button
+                    id="baixarDuplaCamada"
+                    disabled
+                >
+                    Baixar SVG dupla camada
+                </button>
+
+
+                <!-- MENSAGEM -->
+
+                <p id="mensagem"></p>
+
+            </section>
+
+
+            <!-- ============================= -->
+            <!-- VISUALIZAÇÃO -->
+            <!-- ============================= -->
+
+            <section class="visualizacao">
+
+                <h2>
+                    Visualização
+                </h2>
+
+                <div id="preview">
+
+                    <span>
+                        O chaveiro aparecerá aqui.
+                    </span>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- ===================================== -->
+    <!-- OPENTYPE.JS                          -->
+    <!-- converte TTF/OTF em geometria SVG   -->
+    <!-- ===================================== -->
+
+   <!-- OpenType.js -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"
+        ></script>
+
+        <!-- Clipper -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js"
+        ></script>
+
+        <!-- Nosso código -->
+        <script src="script.js?v=16"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+# Somente as fontes utilizadas pelo site
+
+fonts/*
+!fonts/Atma-Regular.ttf
+!fonts/Baloo2[wght].ttf
+!fonts/Boogaloo-Regular.ttf
+!fonts/BubblegumSans-Regular.ttf
+!fonts/CarterOne.ttf
+!fonts/CherryBombOne-Regular.ttf
+!fonts/Chewy-Regular.ttf
+!fonts/Chicle-Regular.ttf
+!fonts/Coiny-Regular.ttf
+!fonts/ConcertOne-Regular.ttf
+!fonts/Courgette-Regular.ttf
+!fonts/Fredoka[wdth,wght].ttf
+!fonts/LilitaOne-Regular.ttf
+!fonts/LuckiestGuy-Regular.ttf
+!fonts/Merienda[wght].ttf
+!fonts/Modak-Regular.ttf
+!fonts/Overlock-Regular.ttf
+!fonts/Ribeye-Regular.ttf
+!fonts/Sniglet-Regular.ttf
+!fonts/TitanOne-Regular.ttf
+
+servidor.log
