@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="style.css"
+        href="style.css?v=20"
     >
 </head>
 
@@ -22,9 +22,9 @@
 
     <main class="container">
 
-        <h1>Gerador de Chaveiro SVG</h1>
+        <h1>Gerador de Chaveiros SVG - NuRIA</h1>
 
-        <p>
+        <p class="introducao">
             Digite o texto, escolha a fonte e configure o chaveiro.
             O arquivo SVG será gerado em dimensões físicas reais.
         </p>
@@ -32,15 +32,11 @@
 
         <div class="painel">
 
-
             <!-- ===================================== -->
             <!-- CONTROLES                             -->
             <!-- ===================================== -->
 
             <section class="controles">
-
-
-                <!-- TEXTO -->
 
                 <label for="texto">
                     Texto
@@ -49,12 +45,10 @@
                 <input
                     type="text"
                     id="texto"
-                    value="Marangoni"
+                    value="Ernesto"
                     autocomplete="off"
                 >
 
-
-                <!-- FONTE -->
 
                 <label for="fonte">
                     Fonte
@@ -148,8 +142,6 @@
                 </select>
 
 
-                <!-- TAMANHO DA FONTE -->
-
                 <label for="tamanho">
                     Tamanho da fonte
                 </label>
@@ -157,7 +149,7 @@
                 <input
                     type="number"
                     id="tamanho"
-                    value="72"
+                    value="40"
                     min="10"
                     max="200"
                     step="1"
@@ -167,8 +159,6 @@
                     Controla a forma e as proporções do desenho.
                 </small>
 
-
-                <!-- BORDA -->
 
                 <label for="borda">
                     Espessura da borda
@@ -188,8 +178,6 @@
                 </small>
 
 
-                <!-- FURO -->
-
                 <label for="furo">
                     Diâmetro do furo
                 </label>
@@ -204,8 +192,6 @@
                 >
 
 
-                <!-- ESPESSURA ARGOLA -->
-
                 <label for="espessuraArgola">
                     Espessura da argola
                 </label>
@@ -213,14 +199,12 @@
                 <input
                     type="number"
                     id="espessuraArgola"
-                    value="2.5"
+                    value="6"
                     min="1"
                     max="10"
                     step="0.5"
                 >
 
-
-                <!-- POSIÇÃO ARGOLA -->
 
                 <label for="posicaoArgola">
                     Posição da argola:
@@ -243,10 +227,6 @@
                 </small>
 
 
-                <!-- ================================= -->
-                <!-- TAMANHO FÍSICO FINAL              -->
-                <!-- ================================= -->
-
                 <label for="alturaFinal">
                     Altura final do chaveiro (mm)
                 </label>
@@ -265,8 +245,6 @@
                     A largura é calculada automaticamente.
                 </small>
 
-
-                <!-- PREENCHIMENTO -->
 
                 <label class="checkbox-container">
 
@@ -287,14 +265,10 @@
                 </small>
 
 
-                <!-- DIMENSÕES CALCULADAS -->
-
                 <p id="dimensoesFinais">
                     Dimensões finais: —
                 </p>
 
-
-                <!-- BOTÕES -->
 
                 <button id="gerar">
                     Gerar SVG
@@ -317,8 +291,6 @@
                 </button>
 
 
-                <!-- MENSAGEM -->
-
                 <p id="mensagem"></p>
 
             </section>
@@ -330,20 +302,60 @@
 
             <section class="visualizacao">
 
-                <h2>
-                    Visualização
-                </h2>
+                <h2>Visualização</h2>
 
-                <small>
-                    Visualização em tamanho físico aproximado.
-                    A escala real na tela depende do monitor e do sistema operacional.
-                </small>
+                <p class="descricao-preview">
+                    Grade dimensional em milímetros.
+                    A geometria da peça mantém a mesma escala
+                    utilizada no arquivo SVG exportado.
+                </p>
 
-                <div id="preview">
 
-                    <span>
-                        O chaveiro aparecerá aqui.
-                    </span>
+                <div class="preview-scroll">
+
+                    <div
+                        id="mesaMedicao"
+                        class="mesa-medicao"
+                    >
+
+                        <div class="canto-regua">
+                            mm
+                        </div>
+
+
+                        <div
+                            id="reguaHorizontal"
+                            class="regua-horizontal"
+                        ></div>
+
+
+                        <div
+                            id="reguaVertical"
+                            class="regua-vertical"
+                        ></div>
+
+
+                        <div
+                            id="areaMedicao"
+                            class="area-medicao"
+                        >
+
+                            <div
+                                id="pecaPreview"
+                                class="peca-preview"
+                            ></div>
+
+
+                            <div
+                                id="medidasPreview"
+                                class="medidas-preview"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -354,29 +366,17 @@
     </main>
 
 
-    <!-- ===================================== -->
-    <!-- OPENTYPE.JS                          -->
-    <!-- ===================================== -->
-
     <script
         src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"
     ></script>
 
-
-    <!-- ===================================== -->
-    <!-- CLIPPER                              -->
-    <!-- ===================================== -->
 
     <script
         src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js"
     ></script>
 
 
-    <!-- ===================================== -->
-    <!-- NOSSO SCRIPT                         -->
-    <!-- ===================================== -->
-
-    <script src="script.js?v=17"></script>
+    <script src="script.js?v=20"></script>
 
 </body>
 

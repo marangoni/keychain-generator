@@ -2,9 +2,11 @@
     box-sizing: border-box;
 }
 
+
 body {
     margin: 0;
     padding: 18px;
+
     background: #f3f3f3;
 
     font-family:
@@ -17,18 +19,18 @@ body {
 
 
 /* =========================================
-   CONTAINER PRINCIPAL
+   CONTAINER
    ========================================= */
 
 .container {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1180px;
 
     margin: 0 auto;
 
-    background: #ffffff;
-
     padding: 30px;
+
+    background: #ffffff;
 
     border-radius: 14px;
 
@@ -40,7 +42,7 @@ body {
 
 h1 {
     margin-top: 0;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
 
     font-size: 34px;
 }
@@ -48,28 +50,31 @@ h1 {
 
 h2 {
     margin-top: 0;
+    margin-bottom: 10px;
 
     font-size: 24px;
 }
 
 
-p {
+.introducao {
+    margin-bottom: 0;
+
     line-height: 1.5;
 }
 
 
 /* =========================================
-   PAINEL
+   LAYOUT
    ========================================= */
 
 .painel {
     display: grid;
 
     grid-template-columns:
-        minmax(300px, 380px)
-        1fr;
+        340px
+        minmax(0, 1fr);
 
-    gap: 38px;
+    gap: 35px;
 
     align-items: start;
 
@@ -83,6 +88,7 @@ p {
 
 .controles {
     display: flex;
+
     flex-direction: column;
 
     gap: 7px;
@@ -90,7 +96,7 @@ p {
 
 
 .controles label {
-    margin-top: 10px;
+    margin-top: 9px;
 
     font-size: 14px;
 
@@ -107,7 +113,7 @@ p {
 
     padding: 7px 10px;
 
-    border: 1px solid #c7c7c7;
+    border: 1px solid #c8c8c8;
 
     border-radius: 5px;
 
@@ -136,8 +142,6 @@ p {
 
 .controles small {
     display: block;
-
-    margin-bottom: 3px;
 
     color: #666;
 
@@ -182,7 +186,7 @@ p {
 
     padding: 10px 12px;
 
-    background: #f4f4f4;
+    background: #f3f3f3;
 
     border-radius: 5px;
 
@@ -201,7 +205,7 @@ button {
 
     min-height: 42px;
 
-    margin-top: 6px;
+    margin-top: 5px;
 
     padding: 10px 16px;
 
@@ -216,10 +220,6 @@ button {
     font-size: 14px;
 
     cursor: pointer;
-
-    transition:
-        background 0.15s ease,
-        transform 0.05s ease;
 }
 
 
@@ -228,13 +228,8 @@ button:hover:not(:disabled) {
 }
 
 
-button:active:not(:disabled) {
-    transform: translateY(1px);
-}
-
-
 button:disabled {
-    background: #aaaaaa;
+    background: #aaa;
 
     cursor: default;
 }
@@ -245,13 +240,13 @@ button:disabled {
    ========================================= */
 
 #mensagem {
-    min-height: 22px;
+    min-height: 20px;
 
     margin-top: 8px;
 
-    font-size: 13px;
-
     color: #555;
+
+    font-size: 13px;
 }
 
 
@@ -264,56 +259,348 @@ button:disabled {
 }
 
 
-.visualizacao > small {
-    display: block;
-
-    margin-bottom: 18px;
+.descricao-preview {
+    margin-top: 0;
+    margin-bottom: 15px;
 
     color: #666;
 
-    font-size: 12px;
+    font-size: 13px;
 
     line-height: 1.4;
 }
 
 
-#preview {
+/* Área que permite rolagem quando o chaveiro
+   for maior que a janela */
+
+.preview-scroll {
+    width: 100%;
+
+    overflow: auto;
+
+    padding:
+        8px
+        8px
+        16px
+        8px;
+}
+
+
+/* =========================================
+   PRANCHETA
+   ========================================= */
+
+.mesa-medicao {
+    position: relative;
+
+    flex: none;
+
+    background: #ffffff;
+
+    border: 1px solid #ddd;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 3px 10px
+        rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================
+   CANTO DAS RÉGUAS
+   ========================================= */
+
+.canto-regua {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 38px;
+    height: 30px;
+
     display: flex;
 
     align-items: center;
     justify-content: center;
 
-    width: 100%;
+    background: #f5f5f5;
 
-    min-height: 300px;
+    border-right: 1px solid #d5d5d5;
+    border-bottom: 1px solid #d5d5d5;
 
-    padding: 30px;
+    color: #888;
 
-    overflow: auto;
+    font-size: 10px;
 
-    background: #fafafa;
-
-    border: 1px solid #dedede;
-
-    border-radius: 8px;
+    z-index: 5;
 }
 
 
-/*
-   IMPORTANTE:
+/* =========================================
+   RÉGUA HORIZONTAL
+   ========================================= */
 
-   Não usamos width: 100% no SVG.
+.regua-horizontal {
+    position: absolute;
 
-   O próprio SVG contém width e height em mm,
-   permitindo que o chaveiro seja exibido
-   aproximadamente no tamanho físico definido.
-*/
+    left: 38px;
+    top: 0;
 
-#preview svg {
-    flex: 0 0 auto;
+    height: 30px;
 
-    max-width: none;
-    max-height: none;
+    background: #f8f8f8;
+
+    border-bottom: 1px solid #d5d5d5;
+
+    overflow: hidden;
+
+    z-index: 4;
+}
+
+
+/* =========================================
+   RÉGUA VERTICAL
+   ========================================= */
+
+.regua-vertical {
+    position: absolute;
+
+    left: 0;
+    top: 30px;
+
+    width: 38px;
+
+    background: #f8f8f8;
+
+    border-right: 1px solid #d5d5d5;
+
+    overflow: hidden;
+
+    z-index: 4;
+}
+
+
+/* =========================================
+   MARCAS DAS RÉGUAS
+   ========================================= */
+
+.tick-horizontal {
+    position: absolute;
+
+    bottom: 0;
+
+    width: 1px;
+    height: 5px;
+
+    background: #bbb;
+}
+
+
+.tick-horizontal.medio {
+    height: 9px;
+}
+
+
+.tick-horizontal.maior {
+    height: 13px;
+
+    background: #999;
+}
+
+
+.tick-horizontal .label {
+    position: absolute;
+
+    top: -14px;
+    left: 0;
+
+    transform: translateX(-50%);
+
+    color: #888;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+
+.tick-vertical {
+    position: absolute;
+
+    right: 0;
+
+    height: 1px;
+    width: 5px;
+
+    background: #bbb;
+}
+
+
+.tick-vertical.medio {
+    width: 9px;
+}
+
+
+.tick-vertical.maior {
+    width: 13px;
+
+    background: #999;
+}
+
+
+.tick-vertical .label {
+    position: absolute;
+
+    right: 16px;
+    top: -6px;
+
+    color: #888;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   ÁREA MILIMETRADA
+   ========================================= */
+
+.area-medicao {
+    position: absolute;
+
+    left: 38px;
+    top: 30px;
+
+    overflow: hidden;
+
+    background-color: #ffffff;
+
+    /*
+       Três níveis de grade:
+
+       fina       = 1 mm
+       média      = 5 mm
+       principal  = 10 mm
+    */
+
+    background-image:
+
+        linear-gradient(
+            to right,
+            #cfcfcf 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            to bottom,
+            #cfcfcf 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            to right,
+            #e1e1e1 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            to bottom,
+            #e1e1e1 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            to right,
+            #f0f0f0 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            to bottom,
+            #f0f0f0 1px,
+            transparent 1px
+        );
+
+
+    background-size:
+
+        var(--grid-10)
+        var(--grid-10),
+
+        var(--grid-10)
+        var(--grid-10),
+
+        var(--grid-5)
+        var(--grid-5),
+
+        var(--grid-5)
+        var(--grid-5),
+
+        var(--grid-1)
+        var(--grid-1),
+
+        var(--grid-1)
+        var(--grid-1);
+}
+
+
+/* =========================================
+   CHAVEIRO
+   ========================================= */
+
+.peca-preview {
+    position: absolute;
+
+    display: block;
+
+    z-index: 2;
+}
+
+
+.peca-preview svg {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: visible;
+}
+
+
+/* =========================================
+   MEDIDAS NO CANTO
+   ========================================= */
+
+.medidas-preview {
+    position: absolute;
+
+    left: 12px;
+    bottom: 10px;
+
+    z-index: 3;
+
+    padding: 6px 9px;
+
+    background:
+        rgba(255, 255, 255, 0.92);
+
+    border-radius: 5px;
+
+    color: #333;
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    box-shadow:
+        0 1px 4px
+        rgba(0, 0, 0, 0.08);
 }
 
 
@@ -321,7 +608,7 @@ button:disabled {
    RESPONSIVO
    ========================================= */
 
-@media (max-width: 800px) {
+@media (max-width: 850px) {
 
     body {
         padding: 10px;
@@ -334,13 +621,14 @@ button:disabled {
 
 
     .painel {
-        grid-template-columns: 1fr;
+        grid-template-columns:
+            1fr;
 
         gap: 30px;
     }
 
 
-    #preview {
-        min-height: 220px;
+    h1 {
+        font-size: 28px;
     }
 }

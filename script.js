@@ -42,22 +42,73 @@ const botaoBaixar =
     document.getElementById("baixar");
 
 const botaoBaixarDuplaCamada =
-    document.getElementById("baixarDuplaCamada");
-
-const preview =
-    document.getElementById("preview");
+    document.getElementById(
+        "baixarDuplaCamada"
+    );
 
 const mensagem =
     document.getElementById("mensagem");
 
 
 // =====================================================
+// ELEMENTOS DA PRANCHETA
+// =====================================================
+
+const mesaMedicao =
+    document.getElementById("mesaMedicao");
+
+const reguaHorizontal =
+    document.getElementById(
+        "reguaHorizontal"
+    );
+
+const reguaVertical =
+    document.getElementById(
+        "reguaVertical"
+    );
+
+const areaMedicao =
+    document.getElementById(
+        "areaMedicao"
+    );
+
+const pecaPreview =
+    document.getElementById(
+        "pecaPreview"
+    );
+
+const medidasPreview =
+    document.getElementById(
+        "medidasPreview"
+    );
+
+
+// =====================================================
+// CONFIGURAÇÃO DA PRANCHETA
+// =====================================================
+
+const PX_POR_MM =
+    5;
+
+const LARGURA_REGUA_VERTICAL =
+    38;
+
+const ALTURA_REGUA_HORIZONTAL =
+    30;
+
+const MARGEM_PRANCHETA_MM =
+    10;
+
+
+// =====================================================
 // ESTADO
 // =====================================================
 
-let svgGerado = "";
+let svgGerado =
+    "";
 
-let svgGeradoDuplaCamada = "";
+let svgGeradoDuplaCamada =
+    "";
 
 const cacheFontes =
     new Map();
@@ -256,8 +307,6 @@ function pathParaPoligonos(path) {
         const cmd of path.commands
     ) {
 
-        // MOVE
-
         if (
             cmd.type === "M"
         ) {
@@ -287,8 +336,6 @@ function pathParaPoligonos(path) {
         }
 
 
-        // LINE
-
         else if (
             cmd.type === "L"
         ) {
@@ -309,8 +356,6 @@ function pathParaPoligonos(path) {
             });
         }
 
-
-        // QUADRÁTICA
 
         else if (
             cmd.type === "Q"
@@ -369,8 +414,6 @@ function pathParaPoligonos(path) {
                 fim;
         }
 
-
-        // CÚBICA
 
         else if (
             cmd.type === "C"
@@ -440,8 +483,6 @@ function pathParaPoligonos(path) {
                 fim;
         }
 
-
-        // CLOSE
 
         else if (
             cmd.type === "Z"
@@ -581,7 +622,7 @@ function gerarContorno(
 
 
 // =====================================================
-// CONTORNOS INTERNOS
+// CONTORNOS EXTERNOS
 // =====================================================
 
 function estaDentro(
@@ -1084,7 +1125,7 @@ function pontoNaDistancia(
 
 
 // =====================================================
-// VETOR
+// VETORES
 // =====================================================
 
 function normalizarVetor(
@@ -1321,7 +1362,7 @@ function pontoNoPerimetro(
 
 
 // =====================================================
-// CONECTOR DA ARGOLA
+// CONECTOR
 // =====================================================
 
 function criarConectorOrientado(
@@ -1584,6 +1625,378 @@ function pathClipperParaSvg(
 
 
 // =====================================================
+// RÉGUA HORIZONTAL
+// =====================================================
+
+function gerarReguaHorizontal(
+    larguraMm
+) {
+
+    reguaHorizontal.innerHTML =
+        "";
+
+
+    reguaHorizontal.style.width =
+        `${larguraMm * PX_POR_MM}px`;
+
+
+    for (
+        let mm = 0;
+        mm <= larguraMm;
+        mm++
+    ) {
+
+        const marca =
+            document.createElement(
+                "div"
+            );
+
+
+        marca.className =
+            "tick-horizontal";
+
+
+        if (
+            mm % 10 === 0
+        ) {
+
+            marca.classList.add(
+                "maior"
+            );
+
+
+            const label =
+                document.createElement(
+                    "span"
+                );
+
+
+            label.className =
+                "label";
+
+
+            label.textContent =
+                mm;
+
+
+            if (
+                mm === 0
+            ) {
+
+                label.style.transform =
+                    "translateX(2px)";
+            }
+
+
+            marca.appendChild(
+                label
+            );
+        }
+
+        else if (
+            mm % 5 === 0
+        ) {
+
+            marca.classList.add(
+                "medio"
+            );
+        }
+
+
+        marca.style.left =
+            `${mm * PX_POR_MM}px`;
+
+
+        reguaHorizontal.appendChild(
+            marca
+        );
+    }
+}
+
+
+// =====================================================
+// RÉGUA VERTICAL
+// =====================================================
+
+function gerarReguaVertical(
+    alturaMm
+) {
+
+    reguaVertical.innerHTML =
+        "";
+
+
+    reguaVertical.style.height =
+        `${alturaMm * PX_POR_MM}px`;
+
+
+    for (
+        let mm = 0;
+        mm <= alturaMm;
+        mm++
+    ) {
+
+        const marca =
+            document.createElement(
+                "div"
+            );
+
+
+        marca.className =
+            "tick-vertical";
+
+
+        if (
+            mm % 10 === 0
+        ) {
+
+            marca.classList.add(
+                "maior"
+            );
+
+
+            const label =
+                document.createElement(
+                    "span"
+                );
+
+
+            label.className =
+                "label";
+
+
+            label.textContent =
+                mm;
+
+
+            if (
+                mm === 0
+            ) {
+
+                label.style.top =
+                    "2px";
+            }
+
+
+            marca.appendChild(
+                label
+            );
+        }
+
+        else if (
+            mm % 5 === 0
+        ) {
+
+            marca.classList.add(
+                "medio"
+            );
+        }
+
+
+        marca.style.top =
+            `${mm * PX_POR_MM}px`;
+
+
+        reguaVertical.appendChild(
+            marca
+        );
+    }
+}
+
+
+// =====================================================
+// PRANCHETA MILIMETRADA
+// =====================================================
+
+function atualizarPrancheta(
+    svgPreview,
+    larguraPecaMm,
+    alturaPecaMm
+) {
+
+    /*
+        A prancheta sempre deixa margem ao redor
+        da peça e cresce em múltiplos de 10 mm.
+    */
+
+    const larguraPranchetaMm =
+        Math.max(
+
+            100,
+
+            Math.ceil(
+                (
+                    larguraPecaMm +
+                    MARGEM_PRANCHETA_MM *
+                    2
+                ) /
+                10
+            ) *
+            10
+        );
+
+
+    const alturaPranchetaMm =
+        Math.max(
+
+            50,
+
+            Math.ceil(
+                (
+                    alturaPecaMm +
+                    MARGEM_PRANCHETA_MM *
+                    2
+                ) /
+                10
+            ) *
+            10
+        );
+
+
+    const larguraPranchetaPx =
+        larguraPranchetaMm *
+        PX_POR_MM;
+
+
+    const alturaPranchetaPx =
+        alturaPranchetaMm *
+        PX_POR_MM;
+
+
+    // -----------------------------------------
+    // DIMENSÕES DA MESA
+    // -----------------------------------------
+
+    mesaMedicao.style.width =
+        `${
+            larguraPranchetaPx +
+            LARGURA_REGUA_VERTICAL
+        }px`;
+
+
+    mesaMedicao.style.height =
+        `${
+            alturaPranchetaPx +
+            ALTURA_REGUA_HORIZONTAL
+        }px`;
+
+
+    // -----------------------------------------
+    // ÁREA DA GRADE
+    // -----------------------------------------
+
+    areaMedicao.style.width =
+        `${larguraPranchetaPx}px`;
+
+
+    areaMedicao.style.height =
+        `${alturaPranchetaPx}px`;
+
+
+    areaMedicao.style.setProperty(
+        "--grid-1",
+        `${PX_POR_MM}px`
+    );
+
+
+    areaMedicao.style.setProperty(
+        "--grid-5",
+        `${PX_POR_MM * 5}px`
+    );
+
+
+    areaMedicao.style.setProperty(
+        "--grid-10",
+        `${PX_POR_MM * 10}px`
+    );
+
+
+    // -----------------------------------------
+    // TAMANHO DA PEÇA NA PRANCHETA
+    // -----------------------------------------
+
+    const larguraPecaPx =
+        larguraPecaMm *
+        PX_POR_MM;
+
+
+    const alturaPecaPx =
+        alturaPecaMm *
+        PX_POR_MM;
+
+
+    pecaPreview.style.width =
+        `${larguraPecaPx}px`;
+
+
+    pecaPreview.style.height =
+        `${alturaPecaPx}px`;
+
+
+    // -----------------------------------------
+    // CENTRALIZAÇÃO
+    // -----------------------------------------
+
+    const esquerda =
+        (
+            larguraPranchetaPx -
+            larguraPecaPx
+        ) /
+        2;
+
+
+    const topo =
+        (
+            alturaPranchetaPx -
+            alturaPecaPx
+        ) /
+        2;
+
+
+    pecaPreview.style.left =
+        `${esquerda}px`;
+
+
+    pecaPreview.style.top =
+        `${topo}px`;
+
+
+    // -----------------------------------------
+    // SVG
+    // -----------------------------------------
+
+    pecaPreview.innerHTML =
+        svgPreview;
+
+
+    // -----------------------------------------
+    // MEDIDAS
+    // -----------------------------------------
+
+    medidasPreview.textContent =
+        `↔ ${
+            larguraPecaMm.toFixed(1)
+        } mm   ↕ ${
+            alturaPecaMm.toFixed(1)
+        } mm`;
+
+
+    // -----------------------------------------
+    // RÉGUAS
+    // -----------------------------------------
+
+    gerarReguaHorizontal(
+        larguraPranchetaMm
+    );
+
+
+    gerarReguaVertical(
+        alturaPranchetaMm
+    );
+}
+
+
+// =====================================================
 // DOWNLOAD
 // =====================================================
 
@@ -1668,10 +2081,6 @@ async function gerarSvg() {
 
     try {
 
-        // =================================================
-        // PARÂMETROS
-        // =================================================
-
         const texto =
             inputTexto.value.trim();
 
@@ -1724,9 +2133,9 @@ async function gerarSvg() {
             `${posicaoArgola.toFixed(1)}%`;
 
 
-        // =================================================
-        // VALIDAÇÕES
-        // =================================================
+        // -----------------------------------------
+        // VALIDAÇÃO
+        // -----------------------------------------
 
         if (
             !texto
@@ -1764,9 +2173,9 @@ async function gerarSvg() {
         }
 
 
-        // =================================================
+        // -----------------------------------------
         // FONTE
-        // =================================================
+        // -----------------------------------------
 
         const fonte =
             await carregarFonte(
@@ -1783,9 +2192,9 @@ async function gerarSvg() {
         }
 
 
-        // =================================================
+        // -----------------------------------------
         // TEXTO
-        // =================================================
+        // -----------------------------------------
 
         const pathTexto =
             fonte.getPath(
@@ -1806,9 +2215,9 @@ async function gerarSvg() {
             pathTexto.getBoundingBox();
 
 
-        // =================================================
+        // -----------------------------------------
         // CONTORNO
-        // =================================================
+        // -----------------------------------------
 
         const poligonos =
             pathParaPoligonos(
@@ -1839,9 +2248,9 @@ async function gerarSvg() {
         }
 
 
-        // =================================================
+        // -----------------------------------------
         // ARGOLA
-        // =================================================
+        // -----------------------------------------
 
         let contornoPrincipal =
             selecionarContornoPrincipal(
@@ -1946,9 +2355,9 @@ async function gerarSvg() {
             );
 
 
-        // =================================================
+        // -----------------------------------------
         // DIMENSÕES GEOMÉTRICAS
-        // =================================================
+        // -----------------------------------------
 
         const bboxFinal =
             boundingBoxClipper(
@@ -1966,12 +2375,9 @@ async function gerarSvg() {
             bboxFinal.minY;
 
 
-        // =================================================
-        // CONVERSÃO PARA MILÍMETROS
-        //
-        // A altura da geometria será exatamente
-        // igual à altura solicitada pelo usuário.
-        // =================================================
+        // -----------------------------------------
+        // ESCALA FÍSICA
+        // -----------------------------------------
 
         const mmPorUnidade =
             alturaFinalMm /
@@ -1991,13 +2397,9 @@ async function gerarSvg() {
             } mm`;
 
 
-        // =================================================
-        // MARGEM DO DOCUMENTO
-        //
-        // A margem NÃO altera o tamanho da peça.
-        // Serve apenas para evitar que o desenho
-        // encoste na borda da página SVG.
-        // =================================================
+        // -----------------------------------------
+        // MARGEM DO ARQUIVO SVG
+        // -----------------------------------------
 
         const margemMm =
             2;
@@ -2040,12 +2442,9 @@ async function gerarSvg() {
             mmPorUnidade;
 
 
-        // =================================================
-        // ESPESSURA VISUAL DAS LINHAS
-        //
-        // Mantemos aproximadamente 0,2 mm,
-        // independentemente do tamanho da peça.
-        // =================================================
+        // -----------------------------------------
+        // ESPESSURA DA LINHA
+        // -----------------------------------------
 
         const espessuraLinhaMm =
             0.2;
@@ -2056,9 +2455,9 @@ async function gerarSvg() {
             mmPorUnidade;
 
 
-        // =================================================
+        // -----------------------------------------
         // PATHS
-        // =================================================
+        // -----------------------------------------
 
         const pathBase =
             clipperParaSvg(
@@ -2079,7 +2478,7 @@ async function gerarSvg() {
 
 
         // =================================================
-        // SVG NORMAL
+        // SVG PARA DOWNLOAD
         // =================================================
 
         const novoSvg = `
@@ -2089,16 +2488,7 @@ async function gerarSvg() {
     width="${documentoLarguraMm.toFixed(3)}mm"
     height="${documentoAlturaMm.toFixed(3)}mm"
     preserveAspectRatio="xMinYMin meet"
-    style="
-        width:${documentoLarguraMm.toFixed(3)}mm;
-        height:${documentoAlturaMm.toFixed(3)}mm;
-        max-width:none;
-        max-height:none;
-        display:block;
-    "
 >
-
-    <!-- CORTE EXTERNO + FURO -->
 
     <path
         id="corte"
@@ -2112,10 +2502,51 @@ async function gerarSvg() {
     />
 
 
-    <!-- LETRAS -->
-
     <path
         id="letras"
+        d="${pathDataTexto}"
+        fill="${preenchimentoTexto}"
+        stroke="#0000FF"
+        stroke-width="${espessuraLinhaUnidades}"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        fill-rule="evenodd"
+    />
+
+</svg>
+        `.trim();
+
+
+        // =================================================
+        // SVG EXCLUSIVO PARA A PRANCHETA
+        //
+        // Aqui NÃO há margem externa.
+        // Assim o desenho ocupa exatamente:
+        //
+        // larguraFinalMm × alturaFinalMm
+        // =================================================
+
+        const svgPreview = `
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="${bboxFinal.minX} ${bboxFinal.minY} ${larguraPecaUnidades} ${alturaPecaUnidades}"
+    width="100%"
+    height="100%"
+    preserveAspectRatio="xMidYMid meet"
+>
+
+    <path
+        d="${pathBase} ${pathFuro}"
+        fill="none"
+        stroke="#FF0000"
+        stroke-width="${espessuraLinhaUnidades}"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        fill-rule="evenodd"
+    />
+
+
+    <path
         d="${pathDataTexto}"
         fill="${preenchimentoTexto}"
         stroke="#0000FF"
@@ -2142,18 +2573,10 @@ async function gerarSvg() {
             mmPorUnidade;
 
 
-        // Coloca o topo das letras inferiores
-        // exatamente abaixo da base superior.
-
         const deslocamentoY =
             bboxFinal.maxY +
             distanciaCamadasUnidades -
             bboxTexto.y1;
-
-
-        const textoInferiorMinY =
-            bboxTexto.y1 +
-            deslocamentoY;
 
 
         const textoInferiorMaxY =
@@ -2233,10 +2656,6 @@ async function gerarSvg() {
     preserveAspectRatio="xMinYMin meet"
 >
 
-    <!-- ================================= -->
-    <!-- CAMADA SUPERIOR                   -->
-    <!-- ================================= -->
-
     <g id="camada-chaveiro">
 
         <path
@@ -2265,11 +2684,6 @@ async function gerarSvg() {
     </g>
 
 
-    <!-- ================================= -->
-    <!-- CAMADA INFERIOR                   -->
-    <!-- LETRAS PARA CORTE                 -->
-    <!-- ================================= -->
-
     <g
         id="camada-letras-corte"
         transform="translate(0 ${deslocamentoY})"
@@ -2292,9 +2706,9 @@ async function gerarSvg() {
         `.trim();
 
 
-        // =================================================
-        // GARANTE QUE ESTA É A GERAÇÃO MAIS RECENTE
-        // =================================================
+        // -----------------------------------------
+        // EVITA CORRIDA ENTRE GERAÇÕES
+        // -----------------------------------------
 
         if (
             meuId !==
@@ -2305,9 +2719,9 @@ async function gerarSvg() {
         }
 
 
-        // =================================================
+        // -----------------------------------------
         // SALVA
-        // =================================================
+        // -----------------------------------------
 
         svgGerado =
             novoSvg;
@@ -2317,25 +2731,20 @@ async function gerarSvg() {
             novoSvgDuplaCamada;
 
 
-        // =================================================
-        // PREVIEW EM TAMANHO FÍSICO
-        // =================================================
+        // -----------------------------------------
+        // PRANCHETA
+        // -----------------------------------------
 
-        preview.style.overflow =
-            "auto";
-
-
-        preview.style.display =
-            "block";
-
-
-        preview.style.padding =
-            "20px";
+        atualizarPrancheta(
+            svgPreview,
+            larguraFinalMm,
+            alturaFinalMm
+        );
 
 
-        preview.innerHTML =
-            svgGerado;
-
+        // -----------------------------------------
+        // BOTÕES
+        // -----------------------------------------
 
         botaoBaixar.disabled =
             false;
@@ -2345,9 +2754,9 @@ async function gerarSvg() {
             false;
 
 
-        // =================================================
+        // -----------------------------------------
         // TEMPO
-        // =================================================
+        // -----------------------------------------
 
         const fimTotal =
             performance.now();
@@ -2392,7 +2801,7 @@ async function gerarSvg() {
 
 
 // =====================================================
-// DOWNLOADS
+// NOMES DOS ARQUIVOS
 // =====================================================
 
 function nomeSeguro() {
@@ -2405,6 +2814,10 @@ function nomeSeguro() {
         );
 }
 
+
+// =====================================================
+// DOWNLOAD NORMAL
+// =====================================================
 
 function baixarSvg() {
 
@@ -2422,6 +2835,10 @@ function baixarSvg() {
     );
 }
 
+
+// =====================================================
+// DOWNLOAD DUPLA CAMADA
+// =====================================================
 
 function baixarSvgDuplaCamada() {
 
@@ -2441,7 +2858,7 @@ function baixarSvgDuplaCamada() {
 
 
 // =====================================================
-// ATUALIZAÇÃO SINCRONIZADA COM A TELA
+// ATUALIZAÇÃO COM REQUESTANIMATIONFRAME
 // =====================================================
 
 let frameAtualizacao =
