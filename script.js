@@ -35,9 +35,6 @@ const inputIncluirPreenchimento =
 const dimensoesFinais =
     document.getElementById("dimensoesFinais");
 
-const botaoGerar =
-    document.getElementById("gerar");
-
 const botaoBaixar =
     document.getElementById("baixar");
 
@@ -2893,12 +2890,6 @@ function solicitarAtualizacao() {
 // =====================================================
 // EVENTOS
 // =====================================================
-
-botaoGerar.addEventListener(
-    "click",
-    gerarSvg
-);
-
 
 botaoBaixar.addEventListener(
     "click",
