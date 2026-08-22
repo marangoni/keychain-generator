@@ -13,7 +13,7 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=20"
+        href="style.css?v=22"
     >
 </head>
 
@@ -22,7 +22,7 @@
 
     <main class="container">
 
-        <h1>Gerador de Chaveiros SVG - NuRIA</h1>
+        <h1>Gerador de Chaveiro SVG</h1>
 
         <p class="introducao">
             Digite o texto, escolha a fonte e configure o chaveiro.
@@ -142,6 +142,136 @@
                 </select>
 
 
+                <!-- ================================= -->
+                <!-- MAIS OPÇÕES                       -->
+                <!-- ================================= -->
+
+                <details class="mais-opcoes">
+
+                    <summary>
+                        Mais opções
+                    </summary>
+
+
+                    <div class="mais-opcoes-conteudo">
+
+
+                        <!-- ESPESSURA DAS LETRAS -->
+
+                        <div class="opcao-avancada">
+
+                            <div class="opcao-cabecalho">
+
+                                <label for="engrossar">
+                                    Espessura das letras
+                                </label>
+
+                                <span
+                                    id="valorEngrossar"
+                                    class="valor-opcao"
+                                >
+                                    0%
+                                </span>
+
+                            </div>
+
+
+                            <input
+                                type="range"
+                                id="engrossar"
+                                min="-20"
+                                max="40"
+                                value="0"
+                                step="1"
+                            >
+
+                            <small>
+                                Valores positivos engrossam as letras;
+                                valores negativos afinam.
+                            </small>
+
+                        </div>
+
+
+                        <!-- ESPAÇAMENTO -->
+
+                        <div class="opcao-avancada">
+
+                            <div class="opcao-cabecalho">
+
+                                <label for="espacamentoLetras">
+                                    Espaçamento entre letras
+                                </label>
+
+                                <span
+                                    id="valorEspacamentoLetras"
+                                    class="valor-opcao"
+                                >
+                                    0%
+                                </span>
+
+                            </div>
+
+
+                            <input
+                                type="range"
+                                id="espacamentoLetras"
+                                min="-20"
+                                max="50"
+                                value="0"
+                                step="1"
+                            >
+
+                            <small>
+                                Valores negativos aproximam as letras;
+                                valores positivos afastam.
+                            </small>
+
+                        </div>
+
+
+                        <!-- CAPITALIZAÇÃO -->
+
+                        <div class="opcao-avancada">
+
+                            <label for="capitalizacao">
+                                Capitalização
+                            </label>
+
+                            <select id="capitalizacao">
+
+                                <option
+                                    value="none"
+                                    selected
+                                >
+                                    Manter original
+                                </option>
+
+                                <option value="capitalize">
+                                    Iniciais maiúsculas
+                                </option>
+
+                                <option value="upper">
+                                    Todas maiúsculas
+                                </option>
+
+                                <option value="lower">
+                                    Todas minúsculas
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </details>
+
+
+                <!-- ================================= -->
+                <!-- TAMANHO DA FONTE                  -->
+                <!-- ================================= -->
+
                 <label for="tamanho">
                     Tamanho da fonte
                 </label>
@@ -159,6 +289,8 @@
                     Controla a forma e as proporções do desenho.
                 </small>
 
+
+                <!-- BORDA -->
 
                 <label for="borda">
                     Espessura da borda
@@ -178,6 +310,8 @@
                 </small>
 
 
+                <!-- FURO -->
+
                 <label for="furo">
                     Diâmetro do furo
                 </label>
@@ -191,6 +325,8 @@
                     step="0.5"
                 >
 
+
+                <!-- ARGOLA -->
 
                 <label for="espessuraArgola">
                     Espessura da argola
@@ -227,6 +363,8 @@
                 </small>
 
 
+                <!-- TAMANHO FÍSICO -->
+
                 <label for="alturaFinal">
                     Altura final do chaveiro (mm)
                 </label>
@@ -245,6 +383,8 @@
                     A largura é calculada automaticamente.
                 </small>
 
+
+                <!-- PREENCHIMENTO -->
 
                 <label class="checkbox-container">
 
@@ -265,9 +405,14 @@
                 </small>
 
 
+                <!-- DIMENSÕES -->
+
                 <p id="dimensoesFinais">
                     Dimensões finais: —
                 </p>
+
+
+                <!-- DOWNLOADS -->
 
                 <button
                     id="baixar"
@@ -296,7 +441,9 @@
 
             <section class="visualizacao">
 
-                <h2>Visualização</h2>
+                <h2>
+                    Visualização
+                </h2>
 
                 <p class="descricao-preview">
                     Grade dimensional em milímetros.
@@ -370,7 +517,7 @@
     ></script>
 
 
-    <script src="script.js?v=21"></script>
+    <script src="script.js?v=22"></script>
 
 </body>
 

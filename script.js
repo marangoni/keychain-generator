@@ -46,7 +46,27 @@ const mensagem =
 
 
 // =====================================================
-// ELEMENTOS DA PRANCHETA
+// MAIS OPÇÕES
+// =====================================================
+
+const inputEngrossar =
+    document.getElementById("engrossar");
+
+const valorEngrossar =
+    document.getElementById("valorEngrossar");
+
+const inputEspacamentoLetras =
+    document.getElementById("espacamentoLetras");
+
+const valorEspacamentoLetras =
+    document.getElementById("valorEspacamentoLetras");
+
+const selectCapitalizacao =
+    document.getElementById("capitalizacao");
+
+
+// =====================================================
+// PRANCHETA
 // =====================================================
 
 const mesaMedicao =
@@ -69,7 +89,7 @@ const medidasPreview =
 
 
 // =====================================================
-// CONFIGURAÇÃO DA PRANCHETA
+// CONFIGURAÇÕES
 // =====================================================
 
 const PX_POR_MM = 5;
@@ -80,6 +100,8 @@ const ALTURA_REGUA_HORIZONTAL = 30;
 
 const MARGEM_PRANCHETA_MM = 10;
 
+const ESCALA_CLIPPER = 1000;
+
 
 // =====================================================
 // ESTADO
@@ -89,32 +111,185 @@ let svgGerado = "";
 
 let svgGeradoDuplaCamada = "";
 
+let geracaoAtual = 0;
+
+let frameAtualizacao = null;
+
 const cacheFontes =
     new Map();
 
 const fontesEmCarregamento =
     new Map();
 
-const ESCALA_CLIPPER = 1000;
-
-let geracaoAtual = 0;
-
 
 // =====================================================
-// CARREGAMENTO DA FONTE
+// CAPITALIZAÇÃO
 // =====================================================
 
-function carregarFonte(caminho) {
+function aplicarCapitalizacao(
+    texto,
+    modo
+) {
 
-    if (cacheFontes.has(caminho)) {
+    if (modo === "upper") {
 
-        return Promise.resolve(
-            cacheFontes.get(caminho)
+        return texto.toUpperCase();
+    }
+
+
+    if (modo === "lower") {
+
+        return texto.toLowerCase();
+    }
+
+
+    if (modo === "capitalize") {
+
+        return texto.replace(
+            /(^|[\s-])([^\s-])/g,
+
+            (resultado, separador, letra) =>
+                separador +
+                letra.toUpperCase()
         );
     }
 
 
-    if (fontesEmCarregamento.has(caminho)) {
+    return texto;
+}
+
+
+// =====================================================
+// TEXTO COM ESPAÇAMENTO PERSONALIZADO
+// =====================================================
+
+function gerarPathTextoPersonalizado(
+    fonte,
+    texto,
+    tamanho,
+    espacamentoPercentual
+) {
+
+    const pathFinal =
+        new opentype.Path();
+
+
+    const glyphs =
+        fonte.stringToGlyphs(
+            texto
+        );
+
+
+    const escala =
+        tamanho /
+        fonte.unitsPerEm;
+
+
+    /*
+        10% equivale aproximadamente
+        a 0,1 em adicional entre caracteres.
+    */
+
+    const espacamentoExtra =
+        tamanho *
+        (
+            espacamentoPercentual /
+            100
+        );
+
+
+    let x = 0;
+
+
+    for (
+        let i = 0;
+        i < glyphs.length;
+        i++
+    ) {
+
+        const glyph =
+            glyphs[i];
+
+
+        const pathGlyph =
+            glyph.getPath(
+                x,
+                0,
+                tamanho
+            );
+
+
+        pathFinal.commands.push(
+            ...pathGlyph.commands
+        );
+
+
+        const advance =
+            (
+                glyph.advanceWidth ||
+                fonte.unitsPerEm
+            ) *
+            escala;
+
+
+        x += advance;
+
+
+        if (
+            i <
+            glyphs.length - 1
+        ) {
+
+            const proximo =
+                glyphs[i + 1];
+
+
+            const kerning =
+                fonte.getKerningValue(
+                    glyph,
+                    proximo
+                ) *
+                escala;
+
+
+            x +=
+                kerning +
+                espacamentoExtra;
+        }
+    }
+
+
+    return pathFinal;
+}
+
+
+// =====================================================
+// CARREGAMENTO DE FONTE
+// =====================================================
+
+function carregarFonte(
+    caminho
+) {
+
+    if (
+        cacheFontes.has(
+            caminho
+        )
+    ) {
+
+        return Promise.resolve(
+            cacheFontes.get(
+                caminho
+            )
+        );
+    }
+
+
+    if (
+        fontesEmCarregamento.has(
+            caminho
+        )
+    ) {
 
         return fontesEmCarregamento.get(
             caminho
@@ -128,12 +303,18 @@ function carregarFonte(caminho) {
 
     const promessa =
         new Promise(
-            (resolve, reject) => {
+            (
+                resolve,
+                reject
+            ) => {
 
                 opentype.load(
                     caminho,
 
-                    function (erro, fonte) {
+                    (
+                        erro,
+                        fonte
+                    ) => {
 
                         fontesEmCarregamento.delete(
                             caminho
@@ -159,7 +340,9 @@ function carregarFonte(caminho) {
                         );
 
 
-                        resolve(fonte);
+                        resolve(
+                            fonte
+                        );
                     }
                 );
             }
@@ -239,20 +422,34 @@ function pontoCubico(
 // OPENTYPE → POLÍGONOS
 // =====================================================
 
-function pathParaPoligonos(path) {
+function pathParaPoligonos(
+    path
+) {
 
-    const poligonos = [];
+    const poligonos =
+        [];
 
-    let atual = [];
+    let atual =
+        [];
 
-    let pontoAtual = null;
+    let pontoAtual =
+        null;
 
-    const segmentosCurva = 12;
+
+    /*
+        Maior que anteriormente para
+        preservar melhor as curvas das letras.
+    */
+
+    const segmentosCurva =
+        20;
 
 
     function finalizar() {
 
-        if (atual.length >= 3) {
+        if (
+            atual.length >= 3
+        ) {
 
             poligonos.push(
                 atual
@@ -260,19 +457,25 @@ function pathParaPoligonos(path) {
         }
 
 
-        atual = [];
+        atual =
+            [];
 
-        pontoAtual = null;
+        pontoAtual =
+            null;
     }
 
 
-    for (const cmd of path.commands) {
+    for (
+        const cmd of path.commands
+    ) {
 
-        // MOVE
+        if (
+            cmd.type === "M"
+        ) {
 
-        if (cmd.type === "M") {
-
-            if (atual.length >= 3) {
+            if (
+                atual.length >= 3
+            ) {
 
                 finalizar();
             }
@@ -280,61 +483,66 @@ function pathParaPoligonos(path) {
 
             pontoAtual = {
 
-                x: cmd.x,
+                x:
+                    cmd.x,
 
-                y: cmd.y
+                y:
+                    cmd.y
             };
 
 
             atual.push({
-
                 ...pontoAtual
             });
         }
 
 
-        // LINE
-
-        else if (cmd.type === "L") {
+        else if (
+            cmd.type === "L"
+        ) {
 
             pontoAtual = {
 
-                x: cmd.x,
+                x:
+                    cmd.x,
 
-                y: cmd.y
+                y:
+                    cmd.y
             };
 
 
             atual.push({
-
                 ...pontoAtual
             });
         }
 
 
-        // QUADRÁTICA
-
-        else if (cmd.type === "Q") {
+        else if (
+            cmd.type === "Q"
+        ) {
 
             const inicio = {
-
                 ...pontoAtual
             };
 
 
             const controle = {
 
-                x: cmd.x1,
+                x:
+                    cmd.x1,
 
-                y: cmd.y1
+                y:
+                    cmd.y1
             };
 
 
             const fim = {
 
-                x: cmd.x,
+                x:
+                    cmd.x,
 
-                y: cmd.y
+                y:
+                    cmd.y
             };
 
 
@@ -350,7 +558,6 @@ function pathParaPoligonos(path) {
 
 
                 atual.push(
-
                     pontoQuadratico(
                         inicio,
                         controle,
@@ -361,41 +568,47 @@ function pathParaPoligonos(path) {
             }
 
 
-            pontoAtual = fim;
+            pontoAtual =
+                fim;
         }
 
 
-        // CÚBICA
-
-        else if (cmd.type === "C") {
+        else if (
+            cmd.type === "C"
+        ) {
 
             const inicio = {
-
                 ...pontoAtual
             };
 
 
             const controle1 = {
 
-                x: cmd.x1,
+                x:
+                    cmd.x1,
 
-                y: cmd.y1
+                y:
+                    cmd.y1
             };
 
 
             const controle2 = {
 
-                x: cmd.x2,
+                x:
+                    cmd.x2,
 
-                y: cmd.y2
+                y:
+                    cmd.y2
             };
 
 
             const fim = {
 
-                x: cmd.x,
+                x:
+                    cmd.x,
 
-                y: cmd.y
+                y:
+                    cmd.y
             };
 
 
@@ -411,7 +624,6 @@ function pathParaPoligonos(path) {
 
 
                 atual.push(
-
                     pontoCubico(
                         inicio,
                         controle1,
@@ -423,15 +635,18 @@ function pathParaPoligonos(path) {
             }
 
 
-            pontoAtual = fim;
+            pontoAtual =
+                fim;
         }
 
 
-        // CLOSE
+        else if (
+            cmd.type === "Z"
+        ) {
 
-        else if (cmd.type === "Z") {
-
-            if (atual.length >= 3) {
+            if (
+                atual.length >= 3
+            ) {
 
                 finalizar();
             }
@@ -439,7 +654,9 @@ function pathParaPoligonos(path) {
     }
 
 
-    if (atual.length >= 3) {
+    if (
+        atual.length >= 3
+    ) {
 
         finalizar();
     }
@@ -482,7 +699,9 @@ function converterParaClipper(
 }
 
 
-function unirPaths(paths) {
+function unirPaths(
+    paths
+) {
 
     const clipper =
         new ClipperLib.Clipper();
@@ -495,7 +714,8 @@ function unirPaths(paths) {
     );
 
 
-    const resultado = [];
+    const resultado =
+        [];
 
 
     clipper.Execute(
@@ -510,38 +730,32 @@ function unirPaths(paths) {
 }
 
 
-function gerarContorno(
-    poligonos,
+// =====================================================
+// OFFSET GENÉRICO
+// =====================================================
+
+function offsetPaths(
+    paths,
     distancia
 ) {
-
-    const paths =
-        converterParaClipper(
-            poligonos
-        );
-
-
-    const unidos =
-        unirPaths(
-            paths
-        );
-
 
     const offset =
         new ClipperLib.ClipperOffset(
             2,
-            0.25 * ESCALA_CLIPPER
+            0.25 *
+            ESCALA_CLIPPER
         );
 
 
     offset.AddPaths(
-        unidos,
+        paths,
         ClipperLib.JoinType.jtRound,
         ClipperLib.EndType.etClosedPolygon
     );
 
 
-    const resultado = [];
+    const resultado =
+        [];
 
 
     offset.Execute(
@@ -558,7 +772,7 @@ function gerarContorno(
 
 
 // =====================================================
-// CONTORNOS EXTERNOS
+// CONTORNOS INTERNOS / EXTERNOS
 // =====================================================
 
 function estaDentro(
@@ -590,7 +804,10 @@ function apenasContornosExternos(
 
     return paths.filter(
 
-        (path, indice) => {
+        (
+            path,
+            indice
+        ) => {
 
             for (
                 let i = 0;
@@ -598,7 +815,9 @@ function apenasContornosExternos(
                 i++
             ) {
 
-                if (i === indice) {
+                if (
+                    i === indice
+                ) {
 
                     continue;
                 }
@@ -633,7 +852,8 @@ function criarCirculo(
     segmentos = 72
 ) {
 
-    const path = [];
+    const path =
+        [];
 
 
     for (
@@ -656,7 +876,9 @@ function criarCirculo(
                     (
                         cx +
                         raio *
-                        Math.cos(angulo)
+                        Math.cos(
+                            angulo
+                        )
                     ) *
                     ESCALA_CLIPPER
                 ),
@@ -666,7 +888,9 @@ function criarCirculo(
                     (
                         cy +
                         raio *
-                        Math.sin(angulo)
+                        Math.sin(
+                            angulo
+                        )
                     ) *
                     ESCALA_CLIPPER
                 )
@@ -682,9 +906,12 @@ function criarCirculo(
 // ÁREA
 // =====================================================
 
-function areaPath(path) {
+function areaPath(
+    path
+) {
 
-    let area = 0;
+    let area =
+        0;
 
 
     for (
@@ -699,7 +926,9 @@ function areaPath(path) {
 
         const p2 =
             path[
-                (i + 1) %
+                (
+                    i + 1
+                ) %
                 path.length
             ];
 
@@ -724,7 +953,9 @@ function selecionarContornoPrincipal(
     paths
 ) {
 
-    if (!paths.length) {
+    if (
+        !paths.length
+    ) {
 
         return null;
     }
@@ -756,9 +987,13 @@ function selecionarContornoPrincipal(
             );
 
 
-        if (area > maiorArea) {
+        if (
+            area >
+            maiorArea
+        ) {
 
-            maiorArea = area;
+            maiorArea =
+                area;
 
             principal =
                 paths[i];
@@ -771,21 +1006,26 @@ function selecionarContornoPrincipal(
 
 
 // =====================================================
-// INÍCIO DO SLIDER À ESQUERDA
+// COMEÇA O SLIDER NO LADO ESQUERDO
 // =====================================================
 
 function iniciarPathPelaEsquerda(
     path
 ) {
 
-    let minX = Infinity;
+    let minX =
+        Infinity;
 
-    let minY = Infinity;
+    let minY =
+        Infinity;
 
-    let maxY = -Infinity;
+    let maxY =
+        -Infinity;
 
 
-    for (const p of path) {
+    for (
+        const p of path
+    ) {
 
         minX =
             Math.min(
@@ -822,7 +1062,8 @@ function iniciarPathPelaEsquerda(
         ESCALA_CLIPPER;
 
 
-    let indice = 0;
+    let indice =
+        0;
 
     let melhorDistancia =
         Infinity;
@@ -859,7 +1100,8 @@ function iniciarPathPelaEsquerda(
                 melhorDistancia =
                     distancia;
 
-                indice = i;
+                indice =
+                    i;
             }
         }
     }
@@ -867,7 +1109,9 @@ function iniciarPathPelaEsquerda(
 
     return [
 
-        ...path.slice(indice),
+        ...path.slice(
+            indice
+        ),
 
         ...path.slice(
             0,
@@ -885,9 +1129,11 @@ function construirPerimetro(
     path
 ) {
 
-    const segmentos = [];
+    const segmentos =
+        [];
 
-    let comprimentoTotal = 0;
+    let comprimentoTotal =
+        0;
 
 
     for (
@@ -902,7 +1148,9 @@ function construirPerimetro(
 
         const p2 =
             path[
-                (i + 1) %
+                (
+                    i + 1
+                ) %
                 path.length
             ];
 
@@ -924,7 +1172,9 @@ function construirPerimetro(
             );
 
 
-        if (comprimento === 0) {
+        if (
+            comprimento === 0
+        ) {
 
             continue;
         }
@@ -968,21 +1218,28 @@ function pontoNaDistancia(
         comprimentoTotal;
 
 
-    if (d < 0) {
+    if (
+        d < 0
+    ) {
 
         d +=
             comprimentoTotal;
     }
 
 
-    for (const segmento of segmentos) {
+    for (
+        const segmento
+        of segmentos
+    ) {
 
         const fim =
             segmento.inicio +
             segmento.comprimento;
 
 
-        if (d <= fim) {
+        if (
+            d <= fim
+        ) {
 
             const distanciaLocal =
                 d -
@@ -1043,7 +1300,9 @@ function normalizarVetor(
         );
 
 
-    if (comprimento === 0) {
+    if (
+        comprimento === 0
+    ) {
 
         return null;
     }
@@ -1085,9 +1344,12 @@ function pontoNoPerimetro(
         100;
 
 
-    if (fracao >= 1) {
+    if (
+        fracao >= 1
+    ) {
 
-        fracao = 0;
+        fracao =
+            0;
     }
 
 
@@ -1212,7 +1474,9 @@ function pontoNoPerimetro(
     let normal;
 
 
-    if (area > 0) {
+    if (
+        area > 0
+    ) {
 
         normal = {
 
@@ -1373,18 +1637,26 @@ function boundingBoxClipper(
     paths
 ) {
 
-    let minX = Infinity;
+    let minX =
+        Infinity;
 
-    let minY = Infinity;
+    let minY =
+        Infinity;
 
-    let maxX = -Infinity;
+    let maxX =
+        -Infinity;
 
-    let maxY = -Infinity;
+    let maxY =
+        -Infinity;
 
 
-    for (const path of paths) {
+    for (
+        const path of paths
+    ) {
 
-        for (const ponto of path) {
+        for (
+            const ponto of path
+        ) {
 
             const x =
                 ponto.X /
@@ -1447,12 +1719,17 @@ function clipperParaSvg(
     paths
 ) {
 
-    let d = "";
+    let d =
+        "";
 
 
-    for (const path of paths) {
+    for (
+        const path of paths
+    ) {
 
-        if (!path.length) {
+        if (
+            !path.length
+        ) {
 
             continue;
         }
@@ -1485,7 +1762,8 @@ function clipperParaSvg(
         }
 
 
-        d += "Z ";
+        d +=
+            "Z ";
     }
 
 
@@ -1516,7 +1794,10 @@ function gerarReguaHorizontal(
 
 
     reguaHorizontal.style.width =
-        `${larguraMm * PX_POR_MM}px`;
+        `${
+            larguraMm *
+            PX_POR_MM
+        }px`;
 
 
     for (
@@ -1535,7 +1816,9 @@ function gerarReguaHorizontal(
             "tick-horizontal";
 
 
-        if (mm % 10 === 0) {
+        if (
+            mm % 10 === 0
+        ) {
 
             marca.classList.add(
                 "maior"
@@ -1556,7 +1839,9 @@ function gerarReguaHorizontal(
                 mm;
 
 
-            if (mm === 0) {
+            if (
+                mm === 0
+            ) {
 
                 label.style.transform =
                     "translateX(2px)";
@@ -1568,7 +1853,9 @@ function gerarReguaHorizontal(
             );
         }
 
-        else if (mm % 5 === 0) {
+        else if (
+            mm % 5 === 0
+        ) {
 
             marca.classList.add(
                 "medio"
@@ -1577,7 +1864,10 @@ function gerarReguaHorizontal(
 
 
         marca.style.left =
-            `${mm * PX_POR_MM}px`;
+            `${
+                mm *
+                PX_POR_MM
+            }px`;
 
 
         reguaHorizontal.appendChild(
@@ -1600,7 +1890,10 @@ function gerarReguaVertical(
 
 
     reguaVertical.style.height =
-        `${alturaMm * PX_POR_MM}px`;
+        `${
+            alturaMm *
+            PX_POR_MM
+        }px`;
 
 
     for (
@@ -1619,7 +1912,9 @@ function gerarReguaVertical(
             "tick-vertical";
 
 
-        if (mm % 10 === 0) {
+        if (
+            mm % 10 === 0
+        ) {
 
             marca.classList.add(
                 "maior"
@@ -1640,7 +1935,9 @@ function gerarReguaVertical(
                 mm;
 
 
-            if (mm === 0) {
+            if (
+                mm === 0
+            ) {
 
                 label.style.top =
                     "2px";
@@ -1652,7 +1949,9 @@ function gerarReguaVertical(
             );
         }
 
-        else if (mm % 5 === 0) {
+        else if (
+            mm % 5 === 0
+        ) {
 
             marca.classList.add(
                 "medio"
@@ -1661,7 +1960,10 @@ function gerarReguaVertical(
 
 
         marca.style.top =
-            `${mm * PX_POR_MM}px`;
+            `${
+                mm *
+                PX_POR_MM
+            }px`;
 
 
         reguaVertical.appendChild(
@@ -1672,7 +1974,7 @@ function gerarReguaVertical(
 
 
 // =====================================================
-// PRANCHETA MILIMETRADA
+// PRANCHETA
 // =====================================================
 
 function atualizarPrancheta(
@@ -1725,10 +2027,6 @@ function atualizarPrancheta(
         PX_POR_MM;
 
 
-    // -----------------------------------------
-    // DIMENSÕES DA MESA
-    // -----------------------------------------
-
     mesaMedicao.style.width =
         `${
             larguraPranchetaPx +
@@ -1742,10 +2040,6 @@ function atualizarPrancheta(
             ALTURA_REGUA_HORIZONTAL
         }px`;
 
-
-    // -----------------------------------------
-    // ÁREA DA GRADE
-    // -----------------------------------------
 
     areaMedicao.style.width =
         `${larguraPranchetaPx}px`;
@@ -1763,19 +2057,21 @@ function atualizarPrancheta(
 
     areaMedicao.style.setProperty(
         "--grid-5",
-        `${PX_POR_MM * 5}px`
+        `${
+            PX_POR_MM *
+            5
+        }px`
     );
 
 
     areaMedicao.style.setProperty(
         "--grid-10",
-        `${PX_POR_MM * 10}px`
+        `${
+            PX_POR_MM *
+            10
+        }px`
     );
 
-
-    // -----------------------------------------
-    // TAMANHO DA PEÇA
-    // -----------------------------------------
 
     const larguraPecaPx =
         larguraPecaMm *
@@ -1794,10 +2090,6 @@ function atualizarPrancheta(
     pecaPreview.style.height =
         `${alturaPecaPx}px`;
 
-
-    // -----------------------------------------
-    // CENTRALIZAÇÃO
-    // -----------------------------------------
 
     const esquerda =
         (
@@ -1823,29 +2115,21 @@ function atualizarPrancheta(
         `${topo}px`;
 
 
-    // -----------------------------------------
-    // SVG
-    // -----------------------------------------
-
     pecaPreview.innerHTML =
         svgPreview;
 
 
-    // -----------------------------------------
-    // MEDIDAS
-    // -----------------------------------------
-
     medidasPreview.textContent =
         `↔ ${
-            larguraPecaMm.toFixed(1)
+            larguraPecaMm.toFixed(
+                1
+            )
         } mm   ↕ ${
-            alturaPecaMm.toFixed(1)
+            alturaPecaMm.toFixed(
+                1
+            )
         } mm`;
 
-
-    // -----------------------------------------
-    // RÉGUAS
-    // -----------------------------------------
 
     gerarReguaHorizontal(
         larguraPranchetaMm
@@ -1909,6 +2193,7 @@ function baixarArquivoSvg(
 
     link.click();
 
+
     link.remove();
 
 
@@ -1919,7 +2204,7 @@ function baixarArquivoSvg(
 
 
 // =====================================================
-// GERAÇÃO
+// GERAÇÃO PRINCIPAL
 // =====================================================
 
 async function gerarSvg() {
@@ -1942,12 +2227,23 @@ async function gerarSvg() {
 
     try {
 
-        // =================================================
+        // -----------------------------------------
         // PARÂMETROS
-        // =================================================
+        // -----------------------------------------
+
+        const textoOriginal =
+            inputTexto.value.trim();
+
+
+        const capitalizacao =
+            selectCapitalizacao.value;
+
 
         const texto =
-            inputTexto.value.trim();
+            aplicarCapitalizacao(
+                textoOriginal,
+                capitalizacao
+            );
 
 
         const tamanho =
@@ -1986,6 +2282,18 @@ async function gerarSvg() {
             );
 
 
+        const engrossarPercentual =
+            Number(
+                inputEngrossar.value
+            );
+
+
+        const espacamentoPercentual =
+            Number(
+                inputEspacamentoLetras.value
+            );
+
+
         const incluirPreenchimento =
             inputIncluirPreenchimento.checked;
 
@@ -1998,11 +2306,29 @@ async function gerarSvg() {
             `${posicaoArgola.toFixed(1)}%`;
 
 
-        // =================================================
-        // VALIDAÇÕES
-        // =================================================
+        valorEngrossar.textContent =
+            `${
+                engrossarPercentual > 0
+                    ? "+"
+                    : ""
+            }${engrossarPercentual}%`;
 
-        if (!texto) {
+
+        valorEspacamentoLetras.textContent =
+            `${
+                espacamentoPercentual > 0
+                    ? "+"
+                    : ""
+            }${espacamentoPercentual}%`;
+
+
+        // -----------------------------------------
+        // VALIDAÇÕES
+        // -----------------------------------------
+
+        if (
+            !texto
+        ) {
 
             throw new Error(
                 "Digite um texto."
@@ -2011,7 +2337,9 @@ async function gerarSvg() {
 
 
         if (
-            !Number.isFinite(tamanho) ||
+            !Number.isFinite(
+                tamanho
+            ) ||
             tamanho <= 0
         ) {
 
@@ -2022,7 +2350,9 @@ async function gerarSvg() {
 
 
         if (
-            !Number.isFinite(alturaFinalMm) ||
+            !Number.isFinite(
+                alturaFinalMm
+            ) ||
             alturaFinalMm <= 0
         ) {
 
@@ -2032,9 +2362,9 @@ async function gerarSvg() {
         }
 
 
-        // =================================================
+        // -----------------------------------------
         // FONTE
-        // =================================================
+        // -----------------------------------------
 
         const fonte =
             await carregarFonte(
@@ -2051,42 +2381,114 @@ async function gerarSvg() {
         }
 
 
-        // =================================================
-        // TEXTO
-        // =================================================
+        // -----------------------------------------
+        // PATH TIPOGRÁFICO
+        // -----------------------------------------
 
         const pathTexto =
-            fonte.getPath(
+            gerarPathTextoPersonalizado(
+                fonte,
                 texto,
-                0,
-                0,
-                tamanho
+                tamanho,
+                espacamentoPercentual
             );
 
 
-        const pathDataTexto =
-            pathTexto.toPathData(
-                3
-            );
-
-
-        const bboxTexto =
-            pathTexto.getBoundingBox();
-
-
-        // =================================================
-        // CONTORNO
-        // =================================================
-
-        const poligonos =
+        const poligonosTexto =
             pathParaPoligonos(
                 pathTexto
             );
 
 
+        if (
+            !poligonosTexto.length
+        ) {
+
+            throw new Error(
+                "Não foi possível gerar as letras."
+            );
+        }
+
+
+        // -----------------------------------------
+        // TEXTO EM CLIPPER
+        // -----------------------------------------
+
+        let textoClipper =
+            unirPaths(
+                converterParaClipper(
+                    poligonosTexto
+                )
+            );
+
+
+        /*
+            O percentual de "engrossar" é convertido
+            para um pequeno offset proporcional
+            ao tamanho tipográfico.
+
+            40% representa um engrossamento perceptível,
+            mas sem destruir rapidamente o desenho.
+        */
+
+        const ajusteEspessura =
+            tamanho *
+            (
+                engrossarPercentual /
+                100
+            ) *
+            0.08;
+
+
+        if (
+            Math.abs(
+                ajusteEspessura
+            ) >
+            0.0001
+        ) {
+
+            textoClipper =
+                offsetPaths(
+                    textoClipper,
+                    ajusteEspessura
+                );
+
+
+            if (
+                !textoClipper.length
+            ) {
+
+                throw new Error(
+                    "As letras ficaram finas demais. " +
+                    "Aumente a espessura."
+                );
+            }
+        }
+
+
+        // -----------------------------------------
+        // PATH FINAL DAS LETRAS
+        // -----------------------------------------
+
+        const pathDataTexto =
+            clipperParaSvg(
+                textoClipper
+            );
+
+
+        const bboxTexto =
+            boundingBoxClipper(
+                textoClipper
+            );
+
+
+        // -----------------------------------------
+        // CONTORNO EXTERNO
+        // -----------------------------------------
+
         let contorno =
-            gerarContorno(
-                poligonos,
+            offsetPaths(
+                textoClipper,
                 borda
             );
 
@@ -2097,7 +2499,9 @@ async function gerarSvg() {
             );
 
 
-        if (!contorno.length) {
+        if (
+            !contorno.length
+        ) {
 
             throw new Error(
                 "Não foi possível gerar o contorno."
@@ -2105,9 +2509,9 @@ async function gerarSvg() {
         }
 
 
-        // =================================================
+        // -----------------------------------------
         // ARGOLA
-        // =================================================
+        // -----------------------------------------
 
         let contornoPrincipal =
             selecionarContornoPrincipal(
@@ -2212,9 +2616,9 @@ async function gerarSvg() {
             );
 
 
-        // =================================================
-        // DIMENSÕES GEOMÉTRICAS
-        // =================================================
+        // -----------------------------------------
+        // DIMENSÕES
+        // -----------------------------------------
 
         const bboxFinal =
             boundingBoxClipper(
@@ -2231,10 +2635,6 @@ async function gerarSvg() {
             bboxFinal.maxY -
             bboxFinal.minY;
 
-
-        // =================================================
-        // ESCALA FÍSICA
-        // =================================================
 
         const mmPorUnidade =
             alturaFinalMm /
@@ -2254,11 +2654,12 @@ async function gerarSvg() {
             } mm`;
 
 
-        // =================================================
-        // MARGEM DO SVG DE DOWNLOAD
-        // =================================================
+        // -----------------------------------------
+        // MARGEM DO ARQUIVO
+        // -----------------------------------------
 
-        const margemMm = 2;
+        const margemMm =
+            2;
 
 
         const margemUnidades =
@@ -2298,9 +2699,9 @@ async function gerarSvg() {
             mmPorUnidade;
 
 
-        // =================================================
-        // ESPESSURA DA LINHA
-        // =================================================
+        // -----------------------------------------
+        // ESPESSURA DAS LINHAS DE REFERÊNCIA
+        // -----------------------------------------
 
         const espessuraLinhaMm =
             0.2;
@@ -2311,9 +2712,9 @@ async function gerarSvg() {
             mmPorUnidade;
 
 
-        // =================================================
+        // -----------------------------------------
         // PATHS
-        // =================================================
+        // -----------------------------------------
 
         const pathBase =
             clipperParaSvg(
@@ -2334,7 +2735,7 @@ async function gerarSvg() {
 
 
         // =================================================
-        // SVG NORMAL PARA DOWNLOAD
+        // SVG NORMAL
         // =================================================
 
         const novoSvg = `
@@ -2357,6 +2758,7 @@ async function gerarSvg() {
         fill-rule="evenodd"
     />
 
+
     <path
         id="letras"
         d="${pathDataTexto}"
@@ -2373,7 +2775,7 @@ async function gerarSvg() {
 
 
         // =================================================
-        // SVG PARA A PRANCHETA
+        // SVG DA PRANCHETA
         // =================================================
 
         const svgPreview = `
@@ -2394,6 +2796,7 @@ async function gerarSvg() {
         stroke-linecap="round"
         fill-rule="evenodd"
     />
+
 
     <path
         d="${pathDataTexto}"
@@ -2425,25 +2828,25 @@ async function gerarSvg() {
         const deslocamentoY =
             bboxFinal.maxY +
             distanciaCamadasUnidades -
-            bboxTexto.y1;
+            bboxTexto.minY;
 
 
         const textoInferiorMaxY =
-            bboxTexto.y2 +
+            bboxTexto.maxY +
             deslocamentoY;
 
 
         const duplaMinX =
             Math.min(
                 bboxFinal.minX,
-                bboxTexto.x1
+                bboxTexto.minX
             );
 
 
         const duplaMaxX =
             Math.max(
                 bboxFinal.maxX,
-                bboxTexto.x2
+                bboxTexto.maxX
             );
 
 
@@ -2518,6 +2921,7 @@ async function gerarSvg() {
             fill-rule="evenodd"
         />
 
+
         <path
             id="letras-chaveiro"
             d="${pathDataTexto}"
@@ -2530,6 +2934,7 @@ async function gerarSvg() {
         />
 
     </g>
+
 
     <g
         id="camada-letras-corte"
@@ -2553,9 +2958,9 @@ async function gerarSvg() {
         `.trim();
 
 
-        // =================================================
-        // EVITA CORRIDA ENTRE GERAÇÕES
-        // =================================================
+        // -----------------------------------------
+        // SOMENTE A GERAÇÃO MAIS NOVA
+        // -----------------------------------------
 
         if (
             meuId !==
@@ -2566,10 +2971,6 @@ async function gerarSvg() {
         }
 
 
-        // =================================================
-        // SALVA
-        // =================================================
-
         svgGerado =
             novoSvg;
 
@@ -2578,20 +2979,12 @@ async function gerarSvg() {
             novoSvgDuplaCamada;
 
 
-        // =================================================
-        // ATUALIZA PRANCHETA
-        // =================================================
-
         atualizarPrancheta(
             svgPreview,
             larguraFinalMm,
             alturaFinalMm
         );
 
-
-        // =================================================
-        // LIBERA DOWNLOADS
-        // =================================================
 
         botaoBaixar.disabled =
             false;
@@ -2600,10 +2993,6 @@ async function gerarSvg() {
         botaoBaixarDuplaCamada.disabled =
             false;
 
-
-        // =================================================
-        // TEMPO
-        // =================================================
 
         const fimTotal =
             performance.now();
@@ -2619,7 +3008,9 @@ async function gerarSvg() {
 
     }
 
-    catch (erro) {
+    catch (
+        erro
+    ) {
 
         console.error(
             erro
@@ -2648,7 +3039,7 @@ async function gerarSvg() {
 
 
 // =====================================================
-// NOME SEGURO PARA O ARQUIVO
+// NOME DO ARQUIVO
 // =====================================================
 
 function nomeSeguro() {
@@ -2668,7 +3059,9 @@ function nomeSeguro() {
 
 function baixarSvg() {
 
-    if (!svgGerado) {
+    if (
+        !svgGerado
+    ) {
 
         return;
     }
@@ -2687,7 +3080,9 @@ function baixarSvg() {
 
 function baixarSvgDuplaCamada() {
 
-    if (!svgGeradoDuplaCamada) {
+    if (
+        !svgGeradoDuplaCamada
+    ) {
 
         return;
     }
@@ -2704,14 +3099,11 @@ function baixarSvgDuplaCamada() {
 // ATUALIZAÇÃO AUTOMÁTICA
 // =====================================================
 
-let frameAtualizacao =
-    null;
-
-
 function solicitarAtualizacao() {
 
     if (
-        frameAtualizacao !== null
+        frameAtualizacao !==
+        null
     ) {
 
         return;
@@ -2720,10 +3112,11 @@ function solicitarAtualizacao() {
 
     frameAtualizacao =
         requestAnimationFrame(
-
             () => {
 
-                frameAtualizacao = null;
+                frameAtualizacao =
+                    null;
+
 
                 gerarSvg();
             }
@@ -2747,15 +3140,11 @@ botaoBaixarDuplaCamada.addEventListener(
 );
 
 
-// Texto
-
 inputTexto.addEventListener(
     "input",
     solicitarAtualizacao
 );
 
-
-// Tamanho da fonte
 
 inputTamanho.addEventListener(
     "input",
@@ -2763,15 +3152,11 @@ inputTamanho.addEventListener(
 );
 
 
-// Borda
-
 inputBorda.addEventListener(
     "input",
     solicitarAtualizacao
 );
 
-
-// Furo
 
 inputFuro.addEventListener(
     "input",
@@ -2779,15 +3164,11 @@ inputFuro.addEventListener(
 );
 
 
-// Espessura da argola
-
 inputEspessuraArgola.addEventListener(
     "input",
     solicitarAtualizacao
 );
 
-
-// Altura física
 
 inputAlturaFinal.addEventListener(
     "input",
@@ -2795,11 +3176,8 @@ inputAlturaFinal.addEventListener(
 );
 
 
-// Posição da argola
-
 inputPosicaoArgola.addEventListener(
     "input",
-
     () => {
 
         valorPosicaoArgola.textContent =
@@ -2815,15 +3193,67 @@ inputPosicaoArgola.addEventListener(
 );
 
 
-// Preenchimento
+// =====================================================
+// NOVAS OPÇÕES
+// =====================================================
+
+inputEngrossar.addEventListener(
+    "input",
+    () => {
+
+        const valor =
+            Number(
+                inputEngrossar.value
+            );
+
+
+        valorEngrossar.textContent =
+            `${
+                valor > 0
+                    ? "+"
+                    : ""
+            }${valor}%`;
+
+
+        solicitarAtualizacao();
+    }
+);
+
+
+inputEspacamentoLetras.addEventListener(
+    "input",
+    () => {
+
+        const valor =
+            Number(
+                inputEspacamentoLetras.value
+            );
+
+
+        valorEspacamentoLetras.textContent =
+            `${
+                valor > 0
+                    ? "+"
+                    : ""
+            }${valor}%`;
+
+
+        solicitarAtualizacao();
+    }
+);
+
+
+selectCapitalizacao.addEventListener(
+    "change",
+    gerarSvg
+);
+
 
 inputIncluirPreenchimento.addEventListener(
     "change",
     gerarSvg
 );
 
-
-// Fonte
 
 selectFonte.addEventListener(
     "change",
@@ -2832,7 +3262,7 @@ selectFonte.addEventListener(
 
 
 // =====================================================
-// GERAÇÃO INICIAL AUTOMÁTICA
+// GERAÇÃO INICIAL
 // =====================================================
 
 window.addEventListener(
