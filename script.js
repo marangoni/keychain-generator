@@ -2,13 +2,20 @@
 // INTERFACE
 // =====================================================
 
-const inputTexto = document.getElementById("texto");
-const selectFonte = document.getElementById("fonte");
+const inputTexto =
+    document.getElementById("texto");
 
-const inputTamanho = document.getElementById("tamanho");
-const inputBorda = document.getElementById("borda");
+const selectFonte =
+    document.getElementById("fonte");
 
-const inputFuro = document.getElementById("furo");
+const inputTamanho =
+    document.getElementById("tamanho");
+
+const inputBorda =
+    document.getElementById("borda");
+
+const inputFuro =
+    document.getElementById("furo");
 
 const inputEspessuraArgola =
     document.getElementById("espessuraArgola");
@@ -19,8 +26,14 @@ const inputPosicaoArgola =
 const valorPosicaoArgola =
     document.getElementById("valorPosicaoArgola");
 
+const inputAlturaFinal =
+    document.getElementById("alturaFinal");
+
 const inputIncluirPreenchimento =
     document.getElementById("incluirPreenchimento");
+
+const dimensoesFinais =
+    document.getElementById("dimensoesFinais");
 
 const botaoGerar =
     document.getElementById("gerar");
@@ -38,11 +51,6 @@ const mensagem =
     document.getElementById("mensagem");
 
 
-// Maior resolução do slider
-
-inputPosicaoArgola.step = "0.1";
-
-
 // =====================================================
 // ESTADO
 // =====================================================
@@ -51,16 +59,17 @@ let svgGerado = "";
 
 let svgGeradoDuplaCamada = "";
 
-const cacheFontes = new Map();
+const cacheFontes =
+    new Map();
 
-const fontesEmCarregamento = new Map();
+const fontesEmCarregamento =
+    new Map();
 
-const ESCALA_CLIPPER = 1000;
+const ESCALA_CLIPPER =
+    1000;
 
-
-// Identificador da geração mais recente
-
-let geracaoAtual = 0;
+let geracaoAtual =
+    0;
 
 
 // =====================================================
@@ -69,7 +78,9 @@ let geracaoAtual = 0;
 
 function carregarFonte(caminho) {
 
-    if (cacheFontes.has(caminho)) {
+    if (
+        cacheFontes.has(caminho)
+    ) {
 
         return Promise.resolve(
             cacheFontes.get(caminho)
@@ -77,7 +88,9 @@ function carregarFonte(caminho) {
     }
 
 
-    if (fontesEmCarregamento.has(caminho)) {
+    if (
+        fontesEmCarregamento.has(caminho)
+    ) {
 
         return fontesEmCarregamento.get(
             caminho
@@ -85,61 +98,50 @@ function carregarFonte(caminho) {
     }
 
 
-    const inicio =
-        performance.now();
-
-
     mensagem.textContent =
         "Carregando fonte...";
 
 
     const promessa =
-        new Promise((resolve, reject) => {
+        new Promise(
+            (resolve, reject) => {
 
-            opentype.load(
-                caminho,
+                opentype.load(
+                    caminho,
 
-                function (erro, fonte) {
+                    function (erro, fonte) {
 
-                    fontesEmCarregamento.delete(
-                        caminho
-                    );
-
-
-                    if (erro) {
-
-                        reject(
-                            new Error(
-                                "Erro ao carregar fonte: " +
-                                erro
-                            )
+                        fontesEmCarregamento.delete(
+                            caminho
                         );
 
-                        return;
+
+                        if (erro) {
+
+                            reject(
+                                new Error(
+                                    "Erro ao carregar fonte: " +
+                                    erro
+                                )
+                            );
+
+                            return;
+                        }
+
+
+                        cacheFontes.set(
+                            caminho,
+                            fonte
+                        );
+
+
+                        resolve(
+                            fonte
+                        );
                     }
-
-
-                    const fim =
-                        performance.now();
-
-
-                    console.log(
-                        `Fonte carregada em ${
-                            (fim - inicio).toFixed(1)
-                        } ms`
-                    );
-
-
-                    cacheFontes.set(
-                        caminho,
-                        fonte
-                    );
-
-
-                    resolve(fonte);
-                }
-            );
-        });
+                );
+            }
+        );
 
 
     fontesEmCarregamento.set(
@@ -153,7 +155,7 @@ function carregarFonte(caminho) {
 
 
 // =====================================================
-// CURVA QUADRÁTICA
+// CURVAS
 // =====================================================
 
 function pontoQuadratico(
@@ -163,7 +165,8 @@ function pontoQuadratico(
     t
 ) {
 
-    const mt = 1 - t;
+    const mt =
+        1 - t;
 
 
     return {
@@ -181,10 +184,6 @@ function pontoQuadratico(
 }
 
 
-// =====================================================
-// CURVA CÚBICA
-// =====================================================
-
 function pontoCubico(
     p0,
     p1,
@@ -193,7 +192,8 @@ function pontoCubico(
     t
 ) {
 
-    const mt = 1 - t;
+    const mt =
+        1 - t;
 
 
     return {
@@ -219,18 +219,24 @@ function pontoCubico(
 
 function pathParaPoligonos(path) {
 
-    const poligonos = [];
+    const poligonos =
+        [];
 
-    let atual = [];
+    let atual =
+        [];
 
-    let pontoAtual = null;
+    let pontoAtual =
+        null;
 
-    const segmentosCurva = 12;
+    const segmentosCurva =
+        12;
 
 
     function finalizar() {
 
-        if (atual.length >= 3) {
+        if (
+            atual.length >= 3
+        ) {
 
             poligonos.push(
                 atual
@@ -238,19 +244,27 @@ function pathParaPoligonos(path) {
         }
 
 
-        atual = [];
+        atual =
+            [];
 
-        pontoAtual = null;
+        pontoAtual =
+            null;
     }
 
 
-    for (const cmd of path.commands) {
+    for (
+        const cmd of path.commands
+    ) {
 
         // MOVE
 
-        if (cmd.type === "M") {
+        if (
+            cmd.type === "M"
+        ) {
 
-            if (atual.length >= 3) {
+            if (
+                atual.length >= 3
+            ) {
 
                 finalizar();
             }
@@ -258,8 +272,11 @@ function pathParaPoligonos(path) {
 
             pontoAtual = {
 
-                x: cmd.x,
-                y: cmd.y
+                x:
+                    cmd.x,
+
+                y:
+                    cmd.y
             };
 
 
@@ -272,12 +289,17 @@ function pathParaPoligonos(path) {
 
         // LINE
 
-        else if (cmd.type === "L") {
+        else if (
+            cmd.type === "L"
+        ) {
 
             pontoAtual = {
 
-                x: cmd.x,
-                y: cmd.y
+                x:
+                    cmd.x,
+
+                y:
+                    cmd.y
             };
 
 
@@ -290,7 +312,9 @@ function pathParaPoligonos(path) {
 
         // QUADRÁTICA
 
-        else if (cmd.type === "Q") {
+        else if (
+            cmd.type === "Q"
+        ) {
 
             const inicio = {
 
@@ -300,15 +324,21 @@ function pathParaPoligonos(path) {
 
             const controle = {
 
-                x: cmd.x1,
-                y: cmd.y1
+                x:
+                    cmd.x1,
+
+                y:
+                    cmd.y1
             };
 
 
             const fim = {
 
-                x: cmd.x,
-                y: cmd.y
+                x:
+                    cmd.x,
+
+                y:
+                    cmd.y
             };
 
 
@@ -319,7 +349,8 @@ function pathParaPoligonos(path) {
             ) {
 
                 const t =
-                    i / segmentosCurva;
+                    i /
+                    segmentosCurva;
 
 
                 atual.push(
@@ -334,13 +365,16 @@ function pathParaPoligonos(path) {
             }
 
 
-            pontoAtual = fim;
+            pontoAtual =
+                fim;
         }
 
 
         // CÚBICA
 
-        else if (cmd.type === "C") {
+        else if (
+            cmd.type === "C"
+        ) {
 
             const inicio = {
 
@@ -350,22 +384,31 @@ function pathParaPoligonos(path) {
 
             const controle1 = {
 
-                x: cmd.x1,
-                y: cmd.y1
+                x:
+                    cmd.x1,
+
+                y:
+                    cmd.y1
             };
 
 
             const controle2 = {
 
-                x: cmd.x2,
-                y: cmd.y2
+                x:
+                    cmd.x2,
+
+                y:
+                    cmd.y2
             };
 
 
             const fim = {
 
-                x: cmd.x,
-                y: cmd.y
+                x:
+                    cmd.x,
+
+                y:
+                    cmd.y
             };
 
 
@@ -376,7 +419,8 @@ function pathParaPoligonos(path) {
             ) {
 
                 const t =
-                    i / segmentosCurva;
+                    i /
+                    segmentosCurva;
 
 
                 atual.push(
@@ -392,15 +436,20 @@ function pathParaPoligonos(path) {
             }
 
 
-            pontoAtual = fim;
+            pontoAtual =
+                fim;
         }
 
 
         // CLOSE
 
-        else if (cmd.type === "Z") {
+        else if (
+            cmd.type === "Z"
+        ) {
 
-            if (atual.length >= 3) {
+            if (
+                atual.length >= 3
+            ) {
 
                 finalizar();
             }
@@ -408,7 +457,9 @@ function pathParaPoligonos(path) {
     }
 
 
-    if (atual.length >= 3) {
+    if (
+        atual.length >= 3
+    ) {
 
         finalizar();
     }
@@ -419,7 +470,7 @@ function pathParaPoligonos(path) {
 
 
 // =====================================================
-// CONVERTE PARA CLIPPER
+// CLIPPER
 // =====================================================
 
 function converterParaClipper(
@@ -451,10 +502,6 @@ function converterParaClipper(
 }
 
 
-// =====================================================
-// UNIÃO DE POLÍGONOS
-// =====================================================
-
 function unirPaths(paths) {
 
     const clipper =
@@ -468,7 +515,8 @@ function unirPaths(paths) {
     );
 
 
-    const resultado = [];
+    const resultado =
+        [];
 
 
     clipper.Execute(
@@ -482,10 +530,6 @@ function unirPaths(paths) {
     return resultado;
 }
 
-
-// =====================================================
-// GERA CONTORNO
-// =====================================================
 
 function gerarContorno(
     poligonos,
@@ -519,7 +563,8 @@ function gerarContorno(
     );
 
 
-    const resultado = [];
+    const resultado =
+        [];
 
 
     offset.Execute(
@@ -536,7 +581,7 @@ function gerarContorno(
 
 
 // =====================================================
-// POLÍGONO DENTRO DE OUTRO
+// CONTORNOS INTERNOS
 // =====================================================
 
 function estaDentro(
@@ -562,11 +607,9 @@ function estaDentro(
 }
 
 
-// =====================================================
-// REMOVE CONTORNOS INTERNOS
-// =====================================================
-
-function apenasContornosExternos(paths) {
+function apenasContornosExternos(
+    paths
+) {
 
     return paths.filter(
 
@@ -578,7 +621,9 @@ function apenasContornosExternos(paths) {
                 i++
             ) {
 
-                if (i === indice) {
+                if (
+                    i === indice
+                ) {
 
                     continue;
                 }
@@ -603,7 +648,7 @@ function apenasContornosExternos(paths) {
 
 
 // =====================================================
-// CRIA CÍRCULO
+// CÍRCULO
 // =====================================================
 
 function criarCirculo(
@@ -613,7 +658,8 @@ function criarCirculo(
     segmentos = 72
 ) {
 
-    const path = [];
+    const path =
+        [];
 
 
     for (
@@ -636,7 +682,9 @@ function criarCirculo(
                     (
                         cx +
                         raio *
-                        Math.cos(angulo)
+                        Math.cos(
+                            angulo
+                        )
                     ) *
                     ESCALA_CLIPPER
                 ),
@@ -646,7 +694,9 @@ function criarCirculo(
                     (
                         cy +
                         raio *
-                        Math.sin(angulo)
+                        Math.sin(
+                            angulo
+                        )
                     ) *
                     ESCALA_CLIPPER
                 )
@@ -659,12 +709,13 @@ function criarCirculo(
 
 
 // =====================================================
-// ÁREA DO POLÍGONO
+// ÁREA
 // =====================================================
 
 function areaPath(path) {
 
-    let area = 0;
+    let area =
+        0;
 
 
     for (
@@ -685,12 +736,15 @@ function areaPath(path) {
 
 
         area +=
-            p1.X * p2.Y -
-            p2.X * p1.Y;
+            p1.X *
+            p2.Y -
+            p2.X *
+            p1.Y;
     }
 
 
-    return area / 2;
+    return area /
+        2;
 }
 
 
@@ -702,7 +756,9 @@ function selecionarContornoPrincipal(
     paths
 ) {
 
-    if (!paths.length) {
+    if (
+        !paths.length
+    ) {
 
         return null;
     }
@@ -734,9 +790,12 @@ function selecionarContornoPrincipal(
             );
 
 
-        if (area > maiorArea) {
+        if (
+            area > maiorArea
+        ) {
 
-            maiorArea = area;
+            maiorArea =
+                area;
 
             principal =
                 paths[i];
@@ -749,30 +808,26 @@ function selecionarContornoPrincipal(
 
 
 // =====================================================
-// FAZ 0% COMEÇAR NA ESQUERDA
+// INÍCIO DO SLIDER À ESQUERDA
 // =====================================================
 
 function iniciarPathPelaEsquerda(
     path
 ) {
 
-    if (
-        !path ||
-        !path.length
+    let minX =
+        Infinity;
+
+    let minY =
+        Infinity;
+
+    let maxY =
+        -Infinity;
+
+
+    for (
+        const p of path
     ) {
-
-        return path;
-    }
-
-
-    let minX = Infinity;
-
-    let minY = Infinity;
-
-    let maxY = -Infinity;
-
-
-    for (const p of path) {
 
         minX =
             Math.min(
@@ -800,18 +855,20 @@ function iniciarPathPelaEsquerda(
         (
             minY +
             maxY
-        ) / 2;
-
-
-    let indice = 0;
-
-    let melhorDistancia =
-        Infinity;
+        ) /
+        2;
 
 
     const tolerancia =
         1.5 *
         ESCALA_CLIPPER;
+
+
+    let indice =
+        0;
+
+    let melhorDistancia =
+        Infinity;
 
 
     for (
@@ -845,7 +902,8 @@ function iniciarPathPelaEsquerda(
                 melhorDistancia =
                     distancia;
 
-                indice = i;
+                indice =
+                    i;
             }
         }
     }
@@ -866,14 +924,18 @@ function iniciarPathPelaEsquerda(
 
 
 // =====================================================
-// CONSTRÓI PERÍMETRO
+// PERÍMETRO
 // =====================================================
 
-function construirPerimetro(path) {
+function construirPerimetro(
+    path
+) {
 
-    const segmentos = [];
+    const segmentos =
+        [];
 
-    let comprimentoTotal = 0;
+    let comprimentoTotal =
+        0;
 
 
     for (
@@ -945,44 +1007,38 @@ function construirPerimetro(path) {
 }
 
 
-// =====================================================
-// PONTO EM UMA DISTÂNCIA DO PERÍMETRO
-// =====================================================
-
 function pontoNaDistancia(
     segmentos,
     comprimentoTotal,
     distancia
 ) {
 
-    if (
-        comprimentoTotal <= 0
-    ) {
-
-        return null;
-    }
-
-
     let d =
         distancia %
         comprimentoTotal;
 
 
-    if (d < 0) {
+    if (
+        d < 0
+    ) {
 
         d +=
             comprimentoTotal;
     }
 
 
-    for (const segmento of segmentos) {
+    for (
+        const segmento of segmentos
+    ) {
 
         const fim =
             segmento.inicio +
             segmento.comprimento;
 
 
-        if (d <= fim) {
+        if (
+            d <= fim
+        ) {
 
             const distanciaLocal =
                 d -
@@ -1028,7 +1084,7 @@ function pontoNaDistancia(
 
 
 // =====================================================
-// NORMALIZA VETOR
+// VETOR
 // =====================================================
 
 function normalizarVetor(
@@ -1065,23 +1121,13 @@ function normalizarVetor(
 
 
 // =====================================================
-// PONTO AO LONGO DO PERÍMETRO
-// COM MOVIMENTO SUAVIZADO
+// POSIÇÃO SUAVIZADA DA ARGOLA
 // =====================================================
 
 function pontoNoPerimetro(
     path,
     percentual
 ) {
-
-    if (
-        !path ||
-        path.length < 2
-    ) {
-
-        return null;
-    }
-
 
     const {
 
@@ -1095,28 +1141,17 @@ function pontoNoPerimetro(
         );
 
 
-    if (
-        comprimentoTotal <= 0
-    ) {
-
-        return null;
-    }
-
-
     let fracao =
         percentual /
         100;
 
 
-    if (fracao >= 1) {
+    if (
+        fracao >= 1
+    ) {
 
-        fracao = 0;
-    }
-
-
-    if (fracao < 0) {
-
-        fracao = 0;
+        fracao =
+            0;
     }
 
 
@@ -1127,24 +1162,11 @@ function pontoNoPerimetro(
 
     const pontoAtual =
         pontoNaDistancia(
-
             segmentos,
-
             comprimentoTotal,
-
             distanciaAtual
         );
 
-
-    if (!pontoAtual) {
-
-        return null;
-    }
-
-
-    // =================================================
-    // JANELA DE SUAVIZAÇÃO
-    // =================================================
 
     const janelaBase =
         Math.min(
@@ -1164,40 +1186,25 @@ function pontoNoPerimetro(
 
 
     function calcularTangente(
-        distanciaJanela
+        janela
     ) {
 
         const anterior =
             pontoNaDistancia(
-
                 segmentos,
-
                 comprimentoTotal,
-
                 distanciaAtual -
-                distanciaJanela
+                janela
             );
 
 
         const posterior =
             pontoNaDistancia(
-
                 segmentos,
-
                 comprimentoTotal,
-
                 distanciaAtual +
-                distanciaJanela
+                janela
             );
-
-
-        if (
-            !anterior ||
-            !posterior
-        ) {
-
-            return null;
-        }
 
 
         return normalizarVetor(
@@ -1210,10 +1217,6 @@ function pontoNoPerimetro(
         );
     }
 
-
-    // =================================================
-    // TRÊS ESCALAS
-    // =================================================
 
     const tangenteCurta =
         calcularTangente(
@@ -1235,22 +1238,7 @@ function pontoNoPerimetro(
         );
 
 
-    if (
-        !tangenteCurta ||
-        !tangenteMedia ||
-        !tangenteLonga
-    ) {
-
-        return null;
-    }
-
-
-    // =================================================
-    // MÉDIA PONDERADA
-    // =================================================
-
     const tx =
-
         tangenteCurta.x *
         0.45 +
 
@@ -1262,7 +1250,6 @@ function pontoNoPerimetro(
 
 
     const ty =
-
         tangenteCurta.y *
         0.45 +
 
@@ -1280,28 +1267,20 @@ function pontoNoPerimetro(
         );
 
 
-    if (!tangente) {
-
-        return null;
-    }
-
-
-    // =================================================
-    // NORMAL EXTERNA
-    // =================================================
-
     const area =
         areaPath(
             path
         );
 
 
-    let normalExterna;
+    let normal;
 
 
-    if (area > 0) {
+    if (
+        area > 0
+    ) {
 
-        normalExterna = {
+        normal = {
 
             x:
                 tangente.y,
@@ -1313,7 +1292,7 @@ function pontoNoPerimetro(
 
     else {
 
-        normalExterna = {
+        normal = {
 
             x:
                 -tangente.y,
@@ -1336,14 +1315,13 @@ function pontoNoPerimetro(
 
         tangente,
 
-        normal:
-            normalExterna
+        normal
     };
 }
 
 
 // =====================================================
-// CONECTOR ORIENTADO
+// CONECTOR DA ARGOLA
 // =====================================================
 
 function criarConectorOrientado(
@@ -1390,7 +1368,6 @@ function criarConectorOrientado(
                 )
         },
 
-
         {
             X:
                 Math.round(
@@ -1411,7 +1388,6 @@ function criarConectorOrientado(
                 )
         },
 
-
         {
             X:
                 Math.round(
@@ -1431,7 +1407,6 @@ function criarConectorOrientado(
                     ESCALA_CLIPPER
                 )
         },
-
 
         {
             X:
@@ -1464,16 +1439,26 @@ function boundingBoxClipper(
     paths
 ) {
 
-    let minX = Infinity;
-    let minY = Infinity;
+    let minX =
+        Infinity;
 
-    let maxX = -Infinity;
-    let maxY = -Infinity;
+    let minY =
+        Infinity;
+
+    let maxX =
+        -Infinity;
+
+    let maxY =
+        -Infinity;
 
 
-    for (const path of paths) {
+    for (
+        const path of paths
+    ) {
 
-        for (const ponto of path) {
+        for (
+            const ponto of path
+        ) {
 
             const x =
                 ponto.X /
@@ -1518,8 +1503,11 @@ function boundingBoxClipper(
     return {
 
         minX,
+
         minY,
+
         maxX,
+
         maxY
     };
 }
@@ -1529,14 +1517,21 @@ function boundingBoxClipper(
 // CLIPPER → SVG
 // =====================================================
 
-function clipperParaSvg(paths) {
+function clipperParaSvg(
+    paths
+) {
 
-    let d = "";
+    let d =
+        "";
 
 
-    for (const path of paths) {
+    for (
+        const path of paths
+    ) {
 
-        if (!path.length) {
+        if (
+            !path.length
+        ) {
 
             continue;
         }
@@ -1578,54 +1573,79 @@ function clipperParaSvg(paths) {
 }
 
 
-// =====================================================
-// UM PATH CLIPPER → SVG
-// =====================================================
+function pathClipperParaSvg(
+    path
+) {
 
-function pathClipperParaSvg(path) {
-
-    if (!path.length) {
-
-        return "";
-    }
-
-
-    let d =
-        `M ${
-            path[0].X /
-            ESCALA_CLIPPER
-        } ${
-            path[0].Y /
-            ESCALA_CLIPPER
-        } `;
-
-
-    for (
-        let i = 1;
-        i < path.length;
-        i++
-    ) {
-
-        d +=
-            `L ${
-                path[i].X /
-                ESCALA_CLIPPER
-            } ${
-                path[i].Y /
-                ESCALA_CLIPPER
-            } `;
-    }
-
-
-    d += "Z";
-
-
-    return d;
+    return clipperParaSvg(
+        [path]
+    );
 }
 
 
 // =====================================================
-// GERA CHAVEIRO
+// DOWNLOAD
+// =====================================================
+
+function baixarArquivoSvg(
+    conteudoSvg,
+    nomeArquivo
+) {
+
+    const conteudo =
+        '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        conteudoSvg;
+
+
+    const blob =
+        new Blob(
+            [conteudo],
+            {
+                type:
+                    "image/svg+xml;charset=utf-8"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        nomeArquivo;
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+}
+
+
+// =====================================================
+// GERAÇÃO
 // =====================================================
 
 async function gerarSvg() {
@@ -1637,8 +1657,6 @@ async function gerarSvg() {
     const inicioTotal =
         performance.now();
 
-
-    // Enquanto gera, evita download de versão antiga
 
     botaoBaixar.disabled =
         true;
@@ -1688,6 +1706,12 @@ async function gerarSvg() {
             );
 
 
+        const alturaFinalMm =
+            Number(
+                inputAlturaFinal.value
+            );
+
+
         const incluirPreenchimento =
             inputIncluirPreenchimento.checked;
 
@@ -1704,60 +1728,39 @@ async function gerarSvg() {
         // VALIDAÇÕES
         // =================================================
 
-        if (!texto) {
+        if (
+            !texto
+        ) {
 
-            mensagem.textContent =
-                "Digite um texto.";
-
-            return;
+            throw new Error(
+                "Digite um texto."
+            );
         }
 
 
         if (
-            !Number.isFinite(tamanho) ||
+            !Number.isFinite(
+                tamanho
+            ) ||
             tamanho <= 0
         ) {
 
-            mensagem.textContent =
-                "Tamanho inválido.";
-
-            return;
+            throw new Error(
+                "Tamanho da fonte inválido."
+            );
         }
 
 
         if (
-            !Number.isFinite(borda) ||
-            borda <= 0
+            !Number.isFinite(
+                alturaFinalMm
+            ) ||
+            alturaFinalMm <= 0
         ) {
 
-            mensagem.textContent =
-                "Borda inválida.";
-
-            return;
-        }
-
-
-        if (
-            !Number.isFinite(diametroFuro) ||
-            diametroFuro <= 0
-        ) {
-
-            mensagem.textContent =
-                "Diâmetro do furo inválido.";
-
-            return;
-        }
-
-
-        if (
-            !Number.isFinite(espessuraArgola) ||
-            espessuraArgola <= 0
-        ) {
-
-            mensagem.textContent =
-                "Espessura da argola inválida.";
-
-            return;
+            throw new Error(
+                "Altura final inválida."
+            );
         }
 
 
@@ -1794,11 +1797,17 @@ async function gerarSvg() {
 
 
         const pathDataTexto =
-            pathTexto.toPathData(3);
+            pathTexto.toPathData(
+                3
+            );
+
+
+        const bboxTexto =
+            pathTexto.getBoundingBox();
 
 
         // =================================================
-        // POLÍGONOS
+        // CONTORNO
         // =================================================
 
         const poligonos =
@@ -1806,10 +1815,6 @@ async function gerarSvg() {
                 pathTexto
             );
 
-
-        // =================================================
-        // CONTORNO DO CHAVEIRO
-        // =================================================
 
         let contorno =
             gerarContorno(
@@ -1824,7 +1829,9 @@ async function gerarSvg() {
             );
 
 
-        if (!contorno.length) {
+        if (
+            !contorno.length
+        ) {
 
             throw new Error(
                 "Não foi possível gerar o contorno."
@@ -1833,7 +1840,7 @@ async function gerarSvg() {
 
 
         // =================================================
-        // TRILHO DA ARGOLA
+        // ARGOLA
         // =================================================
 
         let contornoPrincipal =
@@ -1842,23 +1849,11 @@ async function gerarSvg() {
             );
 
 
-        if (!contornoPrincipal) {
-
-            throw new Error(
-                "Não foi possível localizar o contorno principal."
-            );
-        }
-
-
         contornoPrincipal =
             iniciarPathPelaEsquerda(
                 contornoPrincipal
             );
 
-
-        // =================================================
-        // POSIÇÃO DA ARGOLA
-        // =================================================
 
         const posicao =
             pontoNoPerimetro(
@@ -1866,18 +1861,6 @@ async function gerarSvg() {
                 posicaoArgola
             );
 
-
-        if (!posicao) {
-
-            throw new Error(
-                "Não foi possível calcular a posição da argola."
-            );
-        }
-
-
-        // =================================================
-        // DIMENSÕES DA ARGOLA
-        // =================================================
 
         const raioFuro =
             diametroFuro /
@@ -1896,10 +1879,6 @@ async function gerarSvg() {
                 0.7
             );
 
-
-        // =================================================
-        // CENTRO DA ARGOLA
-        // =================================================
 
         const distanciaCentro =
             raioExterno -
@@ -1920,10 +1899,6 @@ async function gerarSvg() {
         };
 
 
-        // =================================================
-        // CÍRCULO EXTERNO
-        // =================================================
-
         const circuloExterno =
             criarCirculo(
                 centroArgola.x,
@@ -1931,10 +1906,6 @@ async function gerarSvg() {
                 raioExterno
             );
 
-
-        // =================================================
-        // CONECTOR
-        // =================================================
 
         const larguraConector =
             raioExterno *
@@ -1949,10 +1920,6 @@ async function gerarSvg() {
                 larguraConector
             );
 
-
-        // =================================================
-        // UNE BASE + ARGOLA
-        // =================================================
 
         let baseCompleta =
             unirPaths([
@@ -1971,16 +1938,122 @@ async function gerarSvg() {
             );
 
 
-        // =================================================
-        // FURO
-        // =================================================
-
         const furo =
             criarCirculo(
                 centroArgola.x,
                 centroArgola.y,
                 raioFuro
             );
+
+
+        // =================================================
+        // DIMENSÕES GEOMÉTRICAS
+        // =================================================
+
+        const bboxFinal =
+            boundingBoxClipper(
+                baseCompleta
+            );
+
+
+        const larguraPecaUnidades =
+            bboxFinal.maxX -
+            bboxFinal.minX;
+
+
+        const alturaPecaUnidades =
+            bboxFinal.maxY -
+            bboxFinal.minY;
+
+
+        // =================================================
+        // CONVERSÃO PARA MILÍMETROS
+        //
+        // A altura da geometria será exatamente
+        // igual à altura solicitada pelo usuário.
+        // =================================================
+
+        const mmPorUnidade =
+            alturaFinalMm /
+            alturaPecaUnidades;
+
+
+        const larguraFinalMm =
+            larguraPecaUnidades *
+            mmPorUnidade;
+
+
+        dimensoesFinais.textContent =
+            `Dimensões finais: ${
+                larguraFinalMm.toFixed(1)
+            } × ${
+                alturaFinalMm.toFixed(1)
+            } mm`;
+
+
+        // =================================================
+        // MARGEM DO DOCUMENTO
+        //
+        // A margem NÃO altera o tamanho da peça.
+        // Serve apenas para evitar que o desenho
+        // encoste na borda da página SVG.
+        // =================================================
+
+        const margemMm =
+            2;
+
+
+        const margemUnidades =
+            margemMm /
+            mmPorUnidade;
+
+
+        const viewX =
+            bboxFinal.minX -
+            margemUnidades;
+
+
+        const viewY =
+            bboxFinal.minY -
+            margemUnidades;
+
+
+        const viewLargura =
+            larguraPecaUnidades +
+            margemUnidades *
+            2;
+
+
+        const viewAltura =
+            alturaPecaUnidades +
+            margemUnidades *
+            2;
+
+
+        const documentoLarguraMm =
+            viewLargura *
+            mmPorUnidade;
+
+
+        const documentoAlturaMm =
+            viewAltura *
+            mmPorUnidade;
+
+
+        // =================================================
+        // ESPESSURA VISUAL DAS LINHAS
+        //
+        // Mantemos aproximadamente 0,2 mm,
+        // independentemente do tamanho da peça.
+        // =================================================
+
+        const espessuraLinhaMm =
+            0.2;
+
+
+        const espessuraLinhaUnidades =
+            espessuraLinhaMm /
+            mmPorUnidade;
 
 
         // =================================================
@@ -1999,45 +2072,6 @@ async function gerarSvg() {
             );
 
 
-        // =================================================
-        // VIEWBOX DO CHAVEIRO NORMAL
-        // =================================================
-
-        const bboxFinal =
-            boundingBoxClipper(
-                baseCompleta
-            );
-
-
-        const margem = 5;
-
-
-        const x =
-            bboxFinal.minX -
-            margem;
-
-
-        const y =
-            bboxFinal.minY -
-            margem;
-
-
-        const largura =
-            bboxFinal.maxX -
-            bboxFinal.minX +
-            margem * 2;
-
-
-        const altura =
-            bboxFinal.maxY -
-            bboxFinal.minY +
-            margem * 2;
-
-
-        // =================================================
-        // PREENCHIMENTO
-        // =================================================
-
         const preenchimentoTexto =
             incluirPreenchimento
                 ? "#000000"
@@ -2046,18 +2080,22 @@ async function gerarSvg() {
 
         // =================================================
         // SVG NORMAL
-        //
-        // VERMELHO = corte
-        // AZUL = contorno das letras
-        // PRETO = preenchimento
         // =================================================
 
         const novoSvg = `
 <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="${x} ${y} ${largura} ${altura}"
-    width="100%"
-    height="100%"
+    viewBox="${viewX} ${viewY} ${viewLargura} ${viewAltura}"
+    width="${documentoLarguraMm.toFixed(3)}mm"
+    height="${documentoAlturaMm.toFixed(3)}mm"
+    preserveAspectRatio="xMinYMin meet"
+    style="
+        width:${documentoLarguraMm.toFixed(3)}mm;
+        height:${documentoAlturaMm.toFixed(3)}mm;
+        max-width:none;
+        max-height:none;
+        display:block;
+    "
 >
 
     <!-- CORTE EXTERNO + FURO -->
@@ -2067,7 +2105,7 @@ async function gerarSvg() {
         d="${pathBase} ${pathFuro}"
         fill="none"
         stroke="#FF0000"
-        stroke-width="0.5"
+        stroke-width="${espessuraLinhaUnidades}"
         stroke-linejoin="round"
         stroke-linecap="round"
         fill-rule="evenodd"
@@ -2081,7 +2119,7 @@ async function gerarSvg() {
         d="${pathDataTexto}"
         fill="${preenchimentoTexto}"
         stroke="#0000FF"
-        stroke-width="0.5"
+        stroke-width="${espessuraLinhaUnidades}"
         stroke-linejoin="round"
         stroke-linecap="round"
         fill-rule="evenodd"
@@ -2093,66 +2131,132 @@ async function gerarSvg() {
 
         // =================================================
         // SVG DUPLA CAMADA
-        //
-        // PARTE DE CIMA:
-        // chaveiro normal
-        //
-        // PARTE DE BAIXO:
-        // letras sem preenchimento
-        // com contorno vermelho para corte
         // =================================================
 
-        const distanciaEntreCamadas =
-            10;
+        const distanciaCamadasMm =
+            8;
 
+
+        const distanciaCamadasUnidades =
+            distanciaCamadasMm /
+            mmPorUnidade;
+
+
+        // Coloca o topo das letras inferiores
+        // exatamente abaixo da base superior.
 
         const deslocamentoY =
-            altura +
-            distanciaEntreCamadas;
+            bboxFinal.maxY +
+            distanciaCamadasUnidades -
+            bboxTexto.y1;
 
 
-        const alturaDupla =
-            altura * 2 +
-            distanciaEntreCamadas;
+        const textoInferiorMinY =
+            bboxTexto.y1 +
+            deslocamentoY;
+
+
+        const textoInferiorMaxY =
+            bboxTexto.y2 +
+            deslocamentoY;
+
+
+        const duplaMinX =
+            Math.min(
+                bboxFinal.minX,
+                bboxTexto.x1
+            );
+
+
+        const duplaMaxX =
+            Math.max(
+                bboxFinal.maxX,
+                bboxTexto.x2
+            );
+
+
+        const duplaMinY =
+            bboxFinal.minY;
+
+
+        const duplaMaxY =
+            Math.max(
+                bboxFinal.maxY,
+                textoInferiorMaxY
+            );
+
+
+        const duplaViewX =
+            duplaMinX -
+            margemUnidades;
+
+
+        const duplaViewY =
+            duplaMinY -
+            margemUnidades;
+
+
+        const duplaViewLargura =
+            (
+                duplaMaxX -
+                duplaMinX
+            ) +
+            margemUnidades *
+            2;
+
+
+        const duplaViewAltura =
+            (
+                duplaMaxY -
+                duplaMinY
+            ) +
+            margemUnidades *
+            2;
+
+
+        const duplaDocumentoLarguraMm =
+            duplaViewLargura *
+            mmPorUnidade;
+
+
+        const duplaDocumentoAlturaMm =
+            duplaViewAltura *
+            mmPorUnidade;
 
 
         const novoSvgDuplaCamada = `
 <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="${x} ${y} ${largura} ${alturaDupla}"
-    width="100%"
-    height="100%"
+    viewBox="${duplaViewX} ${duplaViewY} ${duplaViewLargura} ${duplaViewAltura}"
+    width="${duplaDocumentoLarguraMm.toFixed(3)}mm"
+    height="${duplaDocumentoAlturaMm.toFixed(3)}mm"
+    preserveAspectRatio="xMinYMin meet"
 >
 
     <!-- ================================= -->
-    <!-- CAMADA 1                          -->
-    <!-- CHAVEIRO COMPLETO                 -->
+    <!-- CAMADA SUPERIOR                   -->
     <!-- ================================= -->
 
     <g id="camada-chaveiro">
-
-        <!-- Corte externo + furo -->
 
         <path
             id="corte-chaveiro"
             d="${pathBase} ${pathFuro}"
             fill="none"
             stroke="#FF0000"
-            stroke-width="0.5"
+            stroke-width="${espessuraLinhaUnidades}"
             stroke-linejoin="round"
             stroke-linecap="round"
             fill-rule="evenodd"
         />
 
 
-        <!-- Letras da camada principal -->
-
         <path
             id="letras-chaveiro"
             d="${pathDataTexto}"
             fill="${preenchimentoTexto}"
             stroke="#0000FF"
-            stroke-width="0.5"
+            stroke-width="${espessuraLinhaUnidades}"
             stroke-linejoin="round"
             stroke-linecap="round"
             fill-rule="evenodd"
@@ -2162,7 +2266,7 @@ async function gerarSvg() {
 
 
     <!-- ================================= -->
-    <!-- CAMADA 2                          -->
+    <!-- CAMADA INFERIOR                   -->
     <!-- LETRAS PARA CORTE                 -->
     <!-- ================================= -->
 
@@ -2176,7 +2280,7 @@ async function gerarSvg() {
             d="${pathDataTexto}"
             fill="none"
             stroke="#FF0000"
-            stroke-width="0.5"
+            stroke-width="${espessuraLinhaUnidades}"
             stroke-linejoin="round"
             stroke-linecap="round"
             fill-rule="evenodd"
@@ -2189,7 +2293,7 @@ async function gerarSvg() {
 
 
         // =================================================
-        // NÃO PERMITE GERAÇÃO ANTIGA SOBRESCREVER NOVA
+        // GARANTE QUE ESTA É A GERAÇÃO MAIS RECENTE
         // =================================================
 
         if (
@@ -2202,7 +2306,7 @@ async function gerarSvg() {
 
 
         // =================================================
-        // SALVA AS DUAS VERSÕES
+        // SALVA
         // =================================================
 
         svgGerado =
@@ -2214,11 +2318,20 @@ async function gerarSvg() {
 
 
         // =================================================
-        // PREVIEW
-        //
-        // Mantemos a visualização normal.
-        // A versão dupla só aparece no arquivo baixado.
+        // PREVIEW EM TAMANHO FÍSICO
         // =================================================
+
+        preview.style.overflow =
+            "auto";
+
+
+        preview.style.display =
+            "block";
+
+
+        preview.style.padding =
+            "20px";
+
 
         preview.innerHTML =
             svgGerado;
@@ -2240,14 +2353,12 @@ async function gerarSvg() {
             performance.now();
 
 
-        const tempo =
-            fimTotal -
-            inicioTotal;
-
-
         mensagem.textContent =
             `Chaveiro gerado em ${
-                tempo.toFixed(0)
+                (
+                    fimTotal -
+                    inicioTotal
+                ).toFixed(0)
             } ms.`;
 
     }
@@ -2281,155 +2392,50 @@ async function gerarSvg() {
 
 
 // =====================================================
-// DOWNLOAD SVG NORMAL
+// DOWNLOADS
 // =====================================================
+
+function nomeSeguro() {
+
+    return inputTexto.value
+        .trim()
+        .replace(
+            /\s+/g,
+            "_"
+        );
+}
+
 
 function baixarSvg() {
 
-    if (!svgGerado) {
+    if (
+        !svgGerado
+    ) {
 
         return;
     }
 
 
-    const texto =
-        inputTexto.value
-            .trim()
-            .replace(
-                /\s+/g,
-                "_"
-            );
-
-
-    const nomeArquivo =
-        `${texto}_chaveiro.svg`;
-
-
-    const conteudo =
-        '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        svgGerado;
-
-
-    const blob =
-        new Blob(
-            [conteudo],
-            {
-                type:
-                    "image/svg+xml;charset=utf-8"
-            }
-        );
-
-
-    const url =
-        URL.createObjectURL(
-            blob
-        );
-
-
-    const link =
-        document.createElement(
-            "a"
-        );
-
-
-    link.href =
-        url;
-
-
-    link.download =
-        nomeArquivo;
-
-
-    document.body.appendChild(
-        link
-    );
-
-
-    link.click();
-
-
-    link.remove();
-
-
-    URL.revokeObjectURL(
-        url
+    baixarArquivoSvg(
+        svgGerado,
+        `${nomeSeguro()}_chaveiro.svg`
     );
 }
 
 
-// =====================================================
-// DOWNLOAD SVG DUPLA CAMADA
-// =====================================================
-
 function baixarSvgDuplaCamada() {
 
-    if (!svgGeradoDuplaCamada) {
+    if (
+        !svgGeradoDuplaCamada
+    ) {
 
         return;
     }
 
 
-    const texto =
-        inputTexto.value
-            .trim()
-            .replace(
-                /\s+/g,
-                "_"
-            );
-
-
-    const nomeArquivo =
-        `${texto}_chaveiro_dupla_camada.svg`;
-
-
-    const conteudo =
-        '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        svgGeradoDuplaCamada;
-
-
-    const blob =
-        new Blob(
-            [conteudo],
-            {
-                type:
-                    "image/svg+xml;charset=utf-8"
-            }
-        );
-
-
-    const url =
-        URL.createObjectURL(
-            blob
-        );
-
-
-    const link =
-        document.createElement(
-            "a"
-        );
-
-
-    link.href =
-        url;
-
-
-    link.download =
-        nomeArquivo;
-
-
-    document.body.appendChild(
-        link
-    );
-
-
-    link.click();
-
-
-    link.remove();
-
-
-    URL.revokeObjectURL(
-        url
+    baixarArquivoSvg(
+        svgGeradoDuplaCamada,
+        `${nomeSeguro()}_chaveiro_dupla_camada.svg`
     );
 }
 
@@ -2438,7 +2444,8 @@ function baixarSvgDuplaCamada() {
 // ATUALIZAÇÃO SINCRONIZADA COM A TELA
 // =====================================================
 
-let frameAtualizacao = null;
+let frameAtualizacao =
+    null;
 
 
 function solicitarAtualizacao() {
@@ -2518,15 +2525,28 @@ inputEspessuraArgola.addEventListener(
 );
 
 
-selectFonte.addEventListener(
-    "change",
-    gerarSvg
+inputAlturaFinal.addEventListener(
+    "input",
+    solicitarAtualizacao
 );
 
 
-// =====================================================
-// CHECKBOX PREENCHIMENTO
-// =====================================================
+inputPosicaoArgola.addEventListener(
+    "input",
+    () => {
+
+        valorPosicaoArgola.textContent =
+            `${
+                Number(
+                    inputPosicaoArgola.value
+                ).toFixed(1)
+            }%`;
+
+
+        solicitarAtualizacao();
+    }
+);
+
 
 inputIncluirPreenchimento.addEventListener(
     "change",
@@ -2534,26 +2554,9 @@ inputIncluirPreenchimento.addEventListener(
 );
 
 
-// =====================================================
-// SLIDER DA ARGOLA
-// =====================================================
-
-inputPosicaoArgola.addEventListener(
-    "input",
-    () => {
-
-        const valor =
-            Number(
-                inputPosicaoArgola.value
-            );
-
-
-        valorPosicaoArgola.textContent =
-            `${valor.toFixed(1)}%`;
-
-
-        solicitarAtualizacao();
-    }
+selectFonte.addEventListener(
+    "change",
+    gerarSvg
 );
 
 

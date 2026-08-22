@@ -22,4 +22,7 @@ fonts/*
 !fonts/Sniglet-Regular.ttf
 !fonts/TitanOne-Regular.ttf
 
+.vscode/
+fontes_download/
+baixar_fontes_chaveiro*.py
 servidor.log

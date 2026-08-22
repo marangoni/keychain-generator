@@ -25,16 +25,17 @@
         <h1>Gerador de Chaveiro SVG</h1>
 
         <p>
-            Digite o texto, escolha a fonte e visualize
-            o resultado em formato vetorial.
+            Digite o texto, escolha a fonte e configure o chaveiro.
+            O arquivo SVG será gerado em dimensões físicas reais.
         </p>
 
 
         <div class="painel">
 
-            <!-- ============================= -->
-            <!-- CONTROLES -->
-            <!-- ============================= -->
+
+            <!-- ===================================== -->
+            <!-- CONTROLES                             -->
+            <!-- ===================================== -->
 
             <section class="controles">
 
@@ -147,7 +148,7 @@
                 </select>
 
 
-                <!-- TAMANHO -->
+                <!-- TAMANHO DA FONTE -->
 
                 <label for="tamanho">
                     Tamanho da fonte
@@ -159,8 +160,12 @@
                     value="72"
                     min="10"
                     max="200"
-                    step="0.1"
+                    step="1"
                 >
+
+                <small>
+                    Controla a forma e as proporções do desenho.
+                </small>
 
 
                 <!-- BORDA -->
@@ -178,6 +183,13 @@
                     step="0.5"
                 >
 
+                <small>
+                    Define a distância entre as letras e o contorno externo.
+                </small>
+
+
+                <!-- FURO -->
+
                 <label for="furo">
                     Diâmetro do furo
                 </label>
@@ -192,6 +204,8 @@
                 >
 
 
+                <!-- ESPESSURA ARGOLA -->
+
                 <label for="espessuraArgola">
                     Espessura da argola
                 </label>
@@ -203,11 +217,16 @@
                     min="1"
                     max="10"
                     step="0.5"
-                >    
+                >
+
+
+                <!-- POSIÇÃO ARGOLA -->
 
                 <label for="posicaoArgola">
                     Posição da argola:
-                    <span id="valorPosicaoArgola">0%</span>
+                    <span id="valorPosicaoArgola">
+                        0.0%
+                    </span>
                 </label>
 
                 <input
@@ -216,26 +235,63 @@
                     min="0"
                     max="100"
                     value="0"
-                    step="1"
+                    step="0.1"
                 >
 
-<small>
-    Deslize para mover a argola ao redor do contorno.
-</small>
+                <small>
+                    Deslize para mover a argola ao redor do contorno.
+                </small>
 
-        <label class="checkbox-container">
-            <input
-                type="checkbox"
-                id="incluirPreenchimento"
-                checked
-            >
 
-            Incluir preenchimento das letras
-        </label>
+                <!-- ================================= -->
+                <!-- TAMANHO FÍSICO FINAL              -->
+                <!-- ================================= -->
 
-        <small>
-            Preto = preenchimento. Azul = contorno das letras.
-        </small>
+                <label for="alturaFinal">
+                    Altura final do chaveiro (mm)
+                </label>
+
+                <input
+                    type="number"
+                    id="alturaFinal"
+                    value="25"
+                    min="10"
+                    max="100"
+                    step="0.5"
+                >
+
+                <small>
+                    Define a altura física real da peça.
+                    A largura é calculada automaticamente.
+                </small>
+
+
+                <!-- PREENCHIMENTO -->
+
+                <label class="checkbox-container">
+
+                    <input
+                        type="checkbox"
+                        id="incluirPreenchimento"
+                        checked
+                    >
+
+                    Incluir preenchimento das letras
+
+                </label>
+
+                <small>
+                    Vermelho = corte;
+                    azul = contorno;
+                    preto = preenchimento.
+                </small>
+
+
+                <!-- DIMENSÕES CALCULADAS -->
+
+                <p id="dimensoesFinais">
+                    Dimensões finais: —
+                </p>
 
 
                 <!-- BOTÕES -->
@@ -244,12 +300,14 @@
                     Gerar SVG
                 </button>
 
+
                 <button
                     id="baixar"
                     disabled
                 >
                     Baixar SVG
                 </button>
+
 
                 <button
                     id="baixarDuplaCamada"
@@ -266,15 +324,20 @@
             </section>
 
 
-            <!-- ============================= -->
-            <!-- VISUALIZAÇÃO -->
-            <!-- ============================= -->
+            <!-- ===================================== -->
+            <!-- VISUALIZAÇÃO                          -->
+            <!-- ===================================== -->
 
             <section class="visualizacao">
 
                 <h2>
                     Visualização
                 </h2>
+
+                <small>
+                    Visualização em tamanho físico aproximado.
+                    A escala real na tela depende do monitor e do sistema operacional.
+                </small>
 
                 <div id="preview">
 
@@ -293,21 +356,27 @@
 
     <!-- ===================================== -->
     <!-- OPENTYPE.JS                          -->
-    <!-- converte TTF/OTF em geometria SVG   -->
     <!-- ===================================== -->
 
-   <!-- OpenType.js -->
-        <script
-            src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"
-        ></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"
+    ></script>
 
-        <!-- Clipper -->
-        <script
-            src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js"
-        ></script>
 
-        <!-- Nosso código -->
-        <script src="script.js?v=16"></script>
+    <!-- ===================================== -->
+    <!-- CLIPPER                              -->
+    <!-- ===================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js"
+    ></script>
+
+
+    <!-- ===================================== -->
+    <!-- NOSSO SCRIPT                         -->
+    <!-- ===================================== -->
+
+    <script src="script.js?v=17"></script>
 
 </body>
 
