@@ -39,9 +39,7 @@ const botaoBaixar =
     document.getElementById("baixar");
 
 const botaoBaixarDuplaCamada =
-    document.getElementById(
-        "baixarDuplaCamada"
-    );
+    document.getElementById("baixarDuplaCamada");
 
 const mensagem =
     document.getElementById("mensagem");
@@ -55,57 +53,41 @@ const mesaMedicao =
     document.getElementById("mesaMedicao");
 
 const reguaHorizontal =
-    document.getElementById(
-        "reguaHorizontal"
-    );
+    document.getElementById("reguaHorizontal");
 
 const reguaVertical =
-    document.getElementById(
-        "reguaVertical"
-    );
+    document.getElementById("reguaVertical");
 
 const areaMedicao =
-    document.getElementById(
-        "areaMedicao"
-    );
+    document.getElementById("areaMedicao");
 
 const pecaPreview =
-    document.getElementById(
-        "pecaPreview"
-    );
+    document.getElementById("pecaPreview");
 
 const medidasPreview =
-    document.getElementById(
-        "medidasPreview"
-    );
+    document.getElementById("medidasPreview");
 
 
 // =====================================================
 // CONFIGURAÇÃO DA PRANCHETA
 // =====================================================
 
-const PX_POR_MM =
-    5;
+const PX_POR_MM = 5;
 
-const LARGURA_REGUA_VERTICAL =
-    38;
+const LARGURA_REGUA_VERTICAL = 38;
 
-const ALTURA_REGUA_HORIZONTAL =
-    30;
+const ALTURA_REGUA_HORIZONTAL = 30;
 
-const MARGEM_PRANCHETA_MM =
-    10;
+const MARGEM_PRANCHETA_MM = 10;
 
 
 // =====================================================
 // ESTADO
 // =====================================================
 
-let svgGerado =
-    "";
+let svgGerado = "";
 
-let svgGeradoDuplaCamada =
-    "";
+let svgGeradoDuplaCamada = "";
 
 const cacheFontes =
     new Map();
@@ -113,11 +95,9 @@ const cacheFontes =
 const fontesEmCarregamento =
     new Map();
 
-const ESCALA_CLIPPER =
-    1000;
+const ESCALA_CLIPPER = 1000;
 
-let geracaoAtual =
-    0;
+let geracaoAtual = 0;
 
 
 // =====================================================
@@ -126,9 +106,7 @@ let geracaoAtual =
 
 function carregarFonte(caminho) {
 
-    if (
-        cacheFontes.has(caminho)
-    ) {
+    if (cacheFontes.has(caminho)) {
 
         return Promise.resolve(
             cacheFontes.get(caminho)
@@ -136,9 +114,7 @@ function carregarFonte(caminho) {
     }
 
 
-    if (
-        fontesEmCarregamento.has(caminho)
-    ) {
+    if (fontesEmCarregamento.has(caminho)) {
 
         return fontesEmCarregamento.get(
             caminho
@@ -183,9 +159,7 @@ function carregarFonte(caminho) {
                         );
 
 
-                        resolve(
-                            fonte
-                        );
+                        resolve(fonte);
                     }
                 );
             }
@@ -267,24 +241,18 @@ function pontoCubico(
 
 function pathParaPoligonos(path) {
 
-    const poligonos =
-        [];
+    const poligonos = [];
 
-    let atual =
-        [];
+    let atual = [];
 
-    let pontoAtual =
-        null;
+    let pontoAtual = null;
 
-    const segmentosCurva =
-        12;
+    const segmentosCurva = 12;
 
 
     function finalizar() {
 
-        if (
-            atual.length >= 3
-        ) {
+        if (atual.length >= 3) {
 
             poligonos.push(
                 atual
@@ -292,25 +260,19 @@ function pathParaPoligonos(path) {
         }
 
 
-        atual =
-            [];
+        atual = [];
 
-        pontoAtual =
-            null;
+        pontoAtual = null;
     }
 
 
-    for (
-        const cmd of path.commands
-    ) {
+    for (const cmd of path.commands) {
 
-        if (
-            cmd.type === "M"
-        ) {
+        // MOVE
 
-            if (
-                atual.length >= 3
-            ) {
+        if (cmd.type === "M") {
+
+            if (atual.length >= 3) {
 
                 finalizar();
             }
@@ -318,11 +280,9 @@ function pathParaPoligonos(path) {
 
             pontoAtual = {
 
-                x:
-                    cmd.x,
+                x: cmd.x,
 
-                y:
-                    cmd.y
+                y: cmd.y
             };
 
 
@@ -333,17 +293,15 @@ function pathParaPoligonos(path) {
         }
 
 
-        else if (
-            cmd.type === "L"
-        ) {
+        // LINE
+
+        else if (cmd.type === "L") {
 
             pontoAtual = {
 
-                x:
-                    cmd.x,
+                x: cmd.x,
 
-                y:
-                    cmd.y
+                y: cmd.y
             };
 
 
@@ -354,9 +312,9 @@ function pathParaPoligonos(path) {
         }
 
 
-        else if (
-            cmd.type === "Q"
-        ) {
+        // QUADRÁTICA
+
+        else if (cmd.type === "Q") {
 
             const inicio = {
 
@@ -366,21 +324,17 @@ function pathParaPoligonos(path) {
 
             const controle = {
 
-                x:
-                    cmd.x1,
+                x: cmd.x1,
 
-                y:
-                    cmd.y1
+                y: cmd.y1
             };
 
 
             const fim = {
 
-                x:
-                    cmd.x,
+                x: cmd.x,
 
-                y:
-                    cmd.y
+                y: cmd.y
             };
 
 
@@ -407,14 +361,13 @@ function pathParaPoligonos(path) {
             }
 
 
-            pontoAtual =
-                fim;
+            pontoAtual = fim;
         }
 
 
-        else if (
-            cmd.type === "C"
-        ) {
+        // CÚBICA
+
+        else if (cmd.type === "C") {
 
             const inicio = {
 
@@ -424,31 +377,25 @@ function pathParaPoligonos(path) {
 
             const controle1 = {
 
-                x:
-                    cmd.x1,
+                x: cmd.x1,
 
-                y:
-                    cmd.y1
+                y: cmd.y1
             };
 
 
             const controle2 = {
 
-                x:
-                    cmd.x2,
+                x: cmd.x2,
 
-                y:
-                    cmd.y2
+                y: cmd.y2
             };
 
 
             const fim = {
 
-                x:
-                    cmd.x,
+                x: cmd.x,
 
-                y:
-                    cmd.y
+                y: cmd.y
             };
 
 
@@ -476,18 +423,15 @@ function pathParaPoligonos(path) {
             }
 
 
-            pontoAtual =
-                fim;
+            pontoAtual = fim;
         }
 
 
-        else if (
-            cmd.type === "Z"
-        ) {
+        // CLOSE
 
-            if (
-                atual.length >= 3
-            ) {
+        else if (cmd.type === "Z") {
+
+            if (atual.length >= 3) {
 
                 finalizar();
             }
@@ -495,9 +439,7 @@ function pathParaPoligonos(path) {
     }
 
 
-    if (
-        atual.length >= 3
-    ) {
+    if (atual.length >= 3) {
 
         finalizar();
     }
@@ -553,8 +495,7 @@ function unirPaths(paths) {
     );
 
 
-    const resultado =
-        [];
+    const resultado = [];
 
 
     clipper.Execute(
@@ -589,8 +530,7 @@ function gerarContorno(
     const offset =
         new ClipperLib.ClipperOffset(
             2,
-            0.25 *
-            ESCALA_CLIPPER
+            0.25 * ESCALA_CLIPPER
         );
 
 
@@ -601,8 +541,7 @@ function gerarContorno(
     );
 
 
-    const resultado =
-        [];
+    const resultado = [];
 
 
     offset.Execute(
@@ -659,9 +598,7 @@ function apenasContornosExternos(
                 i++
             ) {
 
-                if (
-                    i === indice
-                ) {
+                if (i === indice) {
 
                     continue;
                 }
@@ -696,8 +633,7 @@ function criarCirculo(
     segmentos = 72
 ) {
 
-    const path =
-        [];
+    const path = [];
 
 
     for (
@@ -720,9 +656,7 @@ function criarCirculo(
                     (
                         cx +
                         raio *
-                        Math.cos(
-                            angulo
-                        )
+                        Math.cos(angulo)
                     ) *
                     ESCALA_CLIPPER
                 ),
@@ -732,9 +666,7 @@ function criarCirculo(
                     (
                         cy +
                         raio *
-                        Math.sin(
-                            angulo
-                        )
+                        Math.sin(angulo)
                     ) *
                     ESCALA_CLIPPER
                 )
@@ -752,8 +684,7 @@ function criarCirculo(
 
 function areaPath(path) {
 
-    let area =
-        0;
+    let area = 0;
 
 
     for (
@@ -781,8 +712,7 @@ function areaPath(path) {
     }
 
 
-    return area /
-        2;
+    return area / 2;
 }
 
 
@@ -794,9 +724,7 @@ function selecionarContornoPrincipal(
     paths
 ) {
 
-    if (
-        !paths.length
-    ) {
+    if (!paths.length) {
 
         return null;
     }
@@ -828,12 +756,9 @@ function selecionarContornoPrincipal(
             );
 
 
-        if (
-            area > maiorArea
-        ) {
+        if (area > maiorArea) {
 
-            maiorArea =
-                area;
+            maiorArea = area;
 
             principal =
                 paths[i];
@@ -853,19 +778,14 @@ function iniciarPathPelaEsquerda(
     path
 ) {
 
-    let minX =
-        Infinity;
+    let minX = Infinity;
 
-    let minY =
-        Infinity;
+    let minY = Infinity;
 
-    let maxY =
-        -Infinity;
+    let maxY = -Infinity;
 
 
-    for (
-        const p of path
-    ) {
+    for (const p of path) {
 
         minX =
             Math.min(
@@ -902,8 +822,7 @@ function iniciarPathPelaEsquerda(
         ESCALA_CLIPPER;
 
 
-    let indice =
-        0;
+    let indice = 0;
 
     let melhorDistancia =
         Infinity;
@@ -940,8 +859,7 @@ function iniciarPathPelaEsquerda(
                 melhorDistancia =
                     distancia;
 
-                indice =
-                    i;
+                indice = i;
             }
         }
     }
@@ -949,9 +867,7 @@ function iniciarPathPelaEsquerda(
 
     return [
 
-        ...path.slice(
-            indice
-        ),
+        ...path.slice(indice),
 
         ...path.slice(
             0,
@@ -969,11 +885,9 @@ function construirPerimetro(
     path
 ) {
 
-    const segmentos =
-        [];
+    const segmentos = [];
 
-    let comprimentoTotal =
-        0;
+    let comprimentoTotal = 0;
 
 
     for (
@@ -1010,9 +924,7 @@ function construirPerimetro(
             );
 
 
-        if (
-            comprimento === 0
-        ) {
+        if (comprimento === 0) {
 
             continue;
         }
@@ -1056,27 +968,21 @@ function pontoNaDistancia(
         comprimentoTotal;
 
 
-    if (
-        d < 0
-    ) {
+    if (d < 0) {
 
         d +=
             comprimentoTotal;
     }
 
 
-    for (
-        const segmento of segmentos
-    ) {
+    for (const segmento of segmentos) {
 
         const fim =
             segmento.inicio +
             segmento.comprimento;
 
 
-        if (
-            d <= fim
-        ) {
+        if (d <= fim) {
 
             const distanciaLocal =
                 d -
@@ -1137,9 +1043,7 @@ function normalizarVetor(
         );
 
 
-    if (
-        comprimento === 0
-    ) {
+    if (comprimento === 0) {
 
         return null;
     }
@@ -1168,11 +1072,8 @@ function pontoNoPerimetro(
 ) {
 
     const {
-
         segmentos,
-
         comprimentoTotal
-
     } =
         construirPerimetro(
             path
@@ -1184,12 +1085,9 @@ function pontoNoPerimetro(
         100;
 
 
-    if (
-        fracao >= 1
-    ) {
+    if (fracao >= 1) {
 
-        fracao =
-            0;
+        fracao = 0;
     }
 
 
@@ -1314,9 +1212,7 @@ function pontoNoPerimetro(
     let normal;
 
 
-    if (
-        area > 0
-    ) {
+    if (area > 0) {
 
         normal = {
 
@@ -1359,7 +1255,7 @@ function pontoNoPerimetro(
 
 
 // =====================================================
-// CONECTOR
+// CONECTOR DA ARGOLA
 // =====================================================
 
 function criarConectorOrientado(
@@ -1477,26 +1373,18 @@ function boundingBoxClipper(
     paths
 ) {
 
-    let minX =
-        Infinity;
+    let minX = Infinity;
 
-    let minY =
-        Infinity;
+    let minY = Infinity;
 
-    let maxX =
-        -Infinity;
+    let maxX = -Infinity;
 
-    let maxY =
-        -Infinity;
+    let maxY = -Infinity;
 
 
-    for (
-        const path of paths
-    ) {
+    for (const path of paths) {
 
-        for (
-            const ponto of path
-        ) {
+        for (const ponto of path) {
 
             const x =
                 ponto.X /
@@ -1559,17 +1447,12 @@ function clipperParaSvg(
     paths
 ) {
 
-    let d =
-        "";
+    let d = "";
 
 
-    for (
-        const path of paths
-    ) {
+    for (const path of paths) {
 
-        if (
-            !path.length
-        ) {
+        if (!path.length) {
 
             continue;
         }
@@ -1602,8 +1485,7 @@ function clipperParaSvg(
         }
 
 
-        d +=
-            "Z ";
+        d += "Z ";
     }
 
 
@@ -1653,9 +1535,7 @@ function gerarReguaHorizontal(
             "tick-horizontal";
 
 
-        if (
-            mm % 10 === 0
-        ) {
+        if (mm % 10 === 0) {
 
             marca.classList.add(
                 "maior"
@@ -1676,9 +1556,7 @@ function gerarReguaHorizontal(
                 mm;
 
 
-            if (
-                mm === 0
-            ) {
+            if (mm === 0) {
 
                 label.style.transform =
                     "translateX(2px)";
@@ -1690,9 +1568,7 @@ function gerarReguaHorizontal(
             );
         }
 
-        else if (
-            mm % 5 === 0
-        ) {
+        else if (mm % 5 === 0) {
 
             marca.classList.add(
                 "medio"
@@ -1743,9 +1619,7 @@ function gerarReguaVertical(
             "tick-vertical";
 
 
-        if (
-            mm % 10 === 0
-        ) {
+        if (mm % 10 === 0) {
 
             marca.classList.add(
                 "maior"
@@ -1766,9 +1640,7 @@ function gerarReguaVertical(
                 mm;
 
 
-            if (
-                mm === 0
-            ) {
+            if (mm === 0) {
 
                 label.style.top =
                     "2px";
@@ -1780,9 +1652,7 @@ function gerarReguaVertical(
             );
         }
 
-        else if (
-            mm % 5 === 0
-        ) {
+        else if (mm % 5 === 0) {
 
             marca.classList.add(
                 "medio"
@@ -1810,11 +1680,6 @@ function atualizarPrancheta(
     larguraPecaMm,
     alturaPecaMm
 ) {
-
-    /*
-        A prancheta sempre deixa margem ao redor
-        da peça e cresce em múltiplos de 10 mm.
-    */
 
     const larguraPranchetaMm =
         Math.max(
@@ -1909,7 +1774,7 @@ function atualizarPrancheta(
 
 
     // -----------------------------------------
-    // TAMANHO DA PEÇA NA PRANCHETA
+    // TAMANHO DA PEÇA
     // -----------------------------------------
 
     const larguraPecaPx =
@@ -2044,7 +1909,6 @@ function baixarArquivoSvg(
 
     link.click();
 
-
     link.remove();
 
 
@@ -2077,6 +1941,10 @@ async function gerarSvg() {
 
 
     try {
+
+        // =================================================
+        // PARÂMETROS
+        // =================================================
 
         const texto =
             inputTexto.value.trim();
@@ -2130,13 +1998,11 @@ async function gerarSvg() {
             `${posicaoArgola.toFixed(1)}%`;
 
 
-        // -----------------------------------------
-        // VALIDAÇÃO
-        // -----------------------------------------
+        // =================================================
+        // VALIDAÇÕES
+        // =================================================
 
-        if (
-            !texto
-        ) {
+        if (!texto) {
 
             throw new Error(
                 "Digite um texto."
@@ -2145,9 +2011,7 @@ async function gerarSvg() {
 
 
         if (
-            !Number.isFinite(
-                tamanho
-            ) ||
+            !Number.isFinite(tamanho) ||
             tamanho <= 0
         ) {
 
@@ -2158,9 +2022,7 @@ async function gerarSvg() {
 
 
         if (
-            !Number.isFinite(
-                alturaFinalMm
-            ) ||
+            !Number.isFinite(alturaFinalMm) ||
             alturaFinalMm <= 0
         ) {
 
@@ -2170,9 +2032,9 @@ async function gerarSvg() {
         }
 
 
-        // -----------------------------------------
+        // =================================================
         // FONTE
-        // -----------------------------------------
+        // =================================================
 
         const fonte =
             await carregarFonte(
@@ -2189,9 +2051,9 @@ async function gerarSvg() {
         }
 
 
-        // -----------------------------------------
+        // =================================================
         // TEXTO
-        // -----------------------------------------
+        // =================================================
 
         const pathTexto =
             fonte.getPath(
@@ -2212,9 +2074,9 @@ async function gerarSvg() {
             pathTexto.getBoundingBox();
 
 
-        // -----------------------------------------
+        // =================================================
         // CONTORNO
-        // -----------------------------------------
+        // =================================================
 
         const poligonos =
             pathParaPoligonos(
@@ -2235,9 +2097,7 @@ async function gerarSvg() {
             );
 
 
-        if (
-            !contorno.length
-        ) {
+        if (!contorno.length) {
 
             throw new Error(
                 "Não foi possível gerar o contorno."
@@ -2245,9 +2105,9 @@ async function gerarSvg() {
         }
 
 
-        // -----------------------------------------
+        // =================================================
         // ARGOLA
-        // -----------------------------------------
+        // =================================================
 
         let contornoPrincipal =
             selecionarContornoPrincipal(
@@ -2352,9 +2212,9 @@ async function gerarSvg() {
             );
 
 
-        // -----------------------------------------
+        // =================================================
         // DIMENSÕES GEOMÉTRICAS
-        // -----------------------------------------
+        // =================================================
 
         const bboxFinal =
             boundingBoxClipper(
@@ -2372,9 +2232,9 @@ async function gerarSvg() {
             bboxFinal.minY;
 
 
-        // -----------------------------------------
+        // =================================================
         // ESCALA FÍSICA
-        // -----------------------------------------
+        // =================================================
 
         const mmPorUnidade =
             alturaFinalMm /
@@ -2394,12 +2254,11 @@ async function gerarSvg() {
             } mm`;
 
 
-        // -----------------------------------------
-        // MARGEM DO ARQUIVO SVG
-        // -----------------------------------------
+        // =================================================
+        // MARGEM DO SVG DE DOWNLOAD
+        // =================================================
 
-        const margemMm =
-            2;
+        const margemMm = 2;
 
 
         const margemUnidades =
@@ -2439,9 +2298,9 @@ async function gerarSvg() {
             mmPorUnidade;
 
 
-        // -----------------------------------------
+        // =================================================
         // ESPESSURA DA LINHA
-        // -----------------------------------------
+        // =================================================
 
         const espessuraLinhaMm =
             0.2;
@@ -2452,9 +2311,9 @@ async function gerarSvg() {
             mmPorUnidade;
 
 
-        // -----------------------------------------
+        // =================================================
         // PATHS
-        // -----------------------------------------
+        // =================================================
 
         const pathBase =
             clipperParaSvg(
@@ -2475,7 +2334,7 @@ async function gerarSvg() {
 
 
         // =================================================
-        // SVG PARA DOWNLOAD
+        // SVG NORMAL PARA DOWNLOAD
         // =================================================
 
         const novoSvg = `
@@ -2498,7 +2357,6 @@ async function gerarSvg() {
         fill-rule="evenodd"
     />
 
-
     <path
         id="letras"
         d="${pathDataTexto}"
@@ -2515,12 +2373,7 @@ async function gerarSvg() {
 
 
         // =================================================
-        // SVG EXCLUSIVO PARA A PRANCHETA
-        //
-        // Aqui NÃO há margem externa.
-        // Assim o desenho ocupa exatamente:
-        //
-        // larguraFinalMm × alturaFinalMm
+        // SVG PARA A PRANCHETA
         // =================================================
 
         const svgPreview = `
@@ -2541,7 +2394,6 @@ async function gerarSvg() {
         stroke-linecap="round"
         fill-rule="evenodd"
     />
-
 
     <path
         d="${pathDataTexto}"
@@ -2666,7 +2518,6 @@ async function gerarSvg() {
             fill-rule="evenodd"
         />
 
-
         <path
             id="letras-chaveiro"
             d="${pathDataTexto}"
@@ -2679,7 +2530,6 @@ async function gerarSvg() {
         />
 
     </g>
-
 
     <g
         id="camada-letras-corte"
@@ -2703,9 +2553,9 @@ async function gerarSvg() {
         `.trim();
 
 
-        // -----------------------------------------
+        // =================================================
         // EVITA CORRIDA ENTRE GERAÇÕES
-        // -----------------------------------------
+        // =================================================
 
         if (
             meuId !==
@@ -2716,9 +2566,9 @@ async function gerarSvg() {
         }
 
 
-        // -----------------------------------------
+        // =================================================
         // SALVA
-        // -----------------------------------------
+        // =================================================
 
         svgGerado =
             novoSvg;
@@ -2728,9 +2578,9 @@ async function gerarSvg() {
             novoSvgDuplaCamada;
 
 
-        // -----------------------------------------
-        // PRANCHETA
-        // -----------------------------------------
+        // =================================================
+        // ATUALIZA PRANCHETA
+        // =================================================
 
         atualizarPrancheta(
             svgPreview,
@@ -2739,9 +2589,9 @@ async function gerarSvg() {
         );
 
 
-        // -----------------------------------------
-        // BOTÕES
-        // -----------------------------------------
+        // =================================================
+        // LIBERA DOWNLOADS
+        // =================================================
 
         botaoBaixar.disabled =
             false;
@@ -2751,16 +2601,16 @@ async function gerarSvg() {
             false;
 
 
-        // -----------------------------------------
+        // =================================================
         // TEMPO
-        // -----------------------------------------
+        // =================================================
 
         const fimTotal =
             performance.now();
 
 
         mensagem.textContent =
-            `Chaveiro gerado em ${
+            `Chaveiro atualizado em ${
                 (
                     fimTotal -
                     inicioTotal
@@ -2798,7 +2648,7 @@ async function gerarSvg() {
 
 
 // =====================================================
-// NOMES DOS ARQUIVOS
+// NOME SEGURO PARA O ARQUIVO
 // =====================================================
 
 function nomeSeguro() {
@@ -2818,9 +2668,7 @@ function nomeSeguro() {
 
 function baixarSvg() {
 
-    if (
-        !svgGerado
-    ) {
+    if (!svgGerado) {
 
         return;
     }
@@ -2839,9 +2687,7 @@ function baixarSvg() {
 
 function baixarSvgDuplaCamada() {
 
-    if (
-        !svgGeradoDuplaCamada
-    ) {
+    if (!svgGeradoDuplaCamada) {
 
         return;
     }
@@ -2855,7 +2701,7 @@ function baixarSvgDuplaCamada() {
 
 
 // =====================================================
-// ATUALIZAÇÃO COM REQUESTANIMATIONFRAME
+// ATUALIZAÇÃO AUTOMÁTICA
 // =====================================================
 
 let frameAtualizacao =
@@ -2877,9 +2723,7 @@ function solicitarAtualizacao() {
 
             () => {
 
-                frameAtualizacao =
-                    null;
-
+                frameAtualizacao = null;
 
                 gerarSvg();
             }
@@ -2903,11 +2747,15 @@ botaoBaixarDuplaCamada.addEventListener(
 );
 
 
+// Texto
+
 inputTexto.addEventListener(
     "input",
     solicitarAtualizacao
 );
 
+
+// Tamanho da fonte
 
 inputTamanho.addEventListener(
     "input",
@@ -2915,11 +2763,15 @@ inputTamanho.addEventListener(
 );
 
 
+// Borda
+
 inputBorda.addEventListener(
     "input",
     solicitarAtualizacao
 );
 
+
+// Furo
 
 inputFuro.addEventListener(
     "input",
@@ -2927,11 +2779,15 @@ inputFuro.addEventListener(
 );
 
 
+// Espessura da argola
+
 inputEspessuraArgola.addEventListener(
     "input",
     solicitarAtualizacao
 );
 
+
+// Altura física
 
 inputAlturaFinal.addEventListener(
     "input",
@@ -2939,8 +2795,11 @@ inputAlturaFinal.addEventListener(
 );
 
 
+// Posição da argola
+
 inputPosicaoArgola.addEventListener(
     "input",
+
     () => {
 
         valorPosicaoArgola.textContent =
@@ -2956,11 +2815,15 @@ inputPosicaoArgola.addEventListener(
 );
 
 
+// Preenchimento
+
 inputIncluirPreenchimento.addEventListener(
     "change",
     gerarSvg
 );
 
+
+// Fonte
 
 selectFonte.addEventListener(
     "change",
@@ -2969,7 +2832,7 @@ selectFonte.addEventListener(
 
 
 // =====================================================
-// INICIALIZAÇÃO
+// GERAÇÃO INICIAL AUTOMÁTICA
 // =====================================================
 
 window.addEventListener(
